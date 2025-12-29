@@ -13,6 +13,11 @@ public:
 	static constexpr std::uint8_t COUNT_OF_CARDS_ON_RIVER = 7;
 	static constexpr std::uint8_t COUNT_OF_ALL_CARDS = 52;
 
+	static constexpr std::uint8_t COUNT_OF_CARDS_IN_HAND = 2;
+	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_FLOP = 3;
+	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_TERN = 4;
+	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_RIVER = 5;
+
 	constexpr Card() noexcept = default;
 
 	constexpr Card(Card_value rank, Card_suit suit) noexcept : suit(suit), rank(rank) {}

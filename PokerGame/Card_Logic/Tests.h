@@ -1,6 +1,6 @@
 #pragma once
 #include "Poker_combination.h"
-#include <random>
+#include <syncstream>
 
 consteval void TESTS() noexcept {
 	auto run_test = [](
@@ -245,56 +245,66 @@ consteval void TESTS() noexcept {
 	Result::Win), "Error");
 }
 
-void Test_distribution_of_seven_comb_cards(std::size_t number_of_ñard_shuffles, std::optional<Combination> opt = std::nullopt) {
+template <typename T = std::execution::sequenced_policy>
+requires (std::is_same_v<T, std::execution::sequenced_policy>
+|| std::is_same_v<T, std::execution::parallel_policy>)
+void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std::optional<Combination> opt_c = std::nullopt) {
 	std::array<Card, Card::COUNT_OF_ALL_CARDS> cards;
 	
-	for (std::uint8_t i = 0; Card& c : cards) {
-		c = *Card::create_by_index(i++);
+	for (std::uint8_t i = 0; i < cards.size(); ++i) {
+		cards[i] = *Card::create_by_index(i);
 	}
 
-	static std::random_device g;
+	std::array<std::atomic<std::size_t>, 10> map_of_combinations = { 0 };
 
-	auto ptr_to_rand_engine = std::make_unique<std::mt19937>(g());
+	T policy;
 
-	std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER> cards_of_combinations;
+	std::for_each(
+		policy,
+		std::views::iota(std::size_t{ 0 }, number_of_iterations).begin(),
+		std::views::iota(std::size_t{ 0 }, number_of_iterations).end(),
+	[&map_of_combinations, cards, opt_c](bool s) {
+		thread_local std::mt19937_64 rng(std::random_device{}());
 
-	std::array<std::size_t, 10> map_of_combinations = { 0 };
+		std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER> cards_of_combinations;
 
-	for (std::size_t i = 0; i < number_of_ñard_shuffles; ++i) {
 		std::sample(
-			cards.begin(), cards.end(), cards_of_combinations.begin(), Card::COUNT_OF_CARDS_ON_RIVER, *ptr_to_rand_engine
+			cards.begin(), cards.end(), cards_of_combinations.begin(), Card::COUNT_OF_CARDS_ON_RIVER, rng
 		);
 
 		auto hand = *Poker_combination::create_combination_by_cards(cards_of_combinations);
+
 		++map_of_combinations[static_cast<std::uint8_t>(hand.get_power())];
-		
-		if (opt && hand.get_power() >= *opt) {
-			std::cout << "Table cards: ";
+
+		if (opt_c && hand.get_power() == *opt_c) {
+			std::osyncstream sync_cout(std::cout);
+
+			sync_cout << "Table cards: ";
 			for (std::uint8_t i = 0; i < 5; ++i) {
-				std::cout << cards_of_combinations[i] << ' ';
+				sync_cout << cards_of_combinations[i] << ' ';
 			}
-			std::cout << '\n' << "Hand cards: ";
+			sync_cout << '\n' << "Hand cards: ";
 			for (std::uint8_t i = 5; i < 7; ++i) {
-				std::cout << cards_of_combinations[i] << ' ';
+				sync_cout << cards_of_combinations[i] << ' ';
 			}
-			std::cout << '\n' << "Kickers: ";
+			sync_cout << '\n' << "Kickers: ";
 			for (auto c : hand.get_kickers()) {
 				if (c) {
-					std::cout << *c << ' ';
+					sync_cout << *c << ' ';
 				}
 			}
-			std::cout << '\n';
-			hand.show_combination();
-			std::cout << '\n';
+			sync_cout << '\n' << hand.get_power() << ": High cart - " << hand.get_high_card() << '\n' << '\n';
 		}
-	}
+	});
 
+	std::size_t total_sum = 0;
 	for (std::uint8_t i = 0; i < map_of_combinations.size(); ++i) {
-		auto count = map_of_combinations[i];
+		std::size_t count = map_of_combinations[i];
 		if (count != 0) {
+			total_sum += count;
 			std::cout << static_cast<Combination>(i) << ": " << count << '\n';
 		}
 	}
 
-	std::cout << '\n';
+	std::cout << "Total sum of combinations: " << total_sum << '\n';
 }

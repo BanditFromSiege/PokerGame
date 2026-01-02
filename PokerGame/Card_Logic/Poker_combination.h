@@ -404,9 +404,10 @@ constexpr Result compare_combinations(const Poker_combination& comb1, const Poke
 template <typename T = std::execution::sequenced_policy>
 requires (std::is_same_v<T, std::execution::sequenced_policy>
 || std::is_same_v<T, std::execution::parallel_policy>)
-std::optional<double> monte_carlo_evaluation(
+std::optional<std::vector<double>> monte_carlo_evaluation(
 	std::span<const Card> initial_player_cards,
 	std::span<const Card> initial_table_cards,
+	std::span<const std::pair<Card, Card>> initial_opponent_cards,
 	std::uint8_t players,
 	std::size_t number_of_iterations
 ) noexcept {
@@ -427,6 +428,12 @@ std::optional<double> monte_carlo_evaluation(
 		return std::nullopt;
 	}
 
+	const std::uint8_t opponent_number = players - 1;
+
+	if (!initial_opponent_cards.empty() && initial_opponent_cards.size() > opponent_number) {
+		return std::nullopt;
+	}
+	
 	std::array<bool, Card::COUNT_OF_ALL_CARDS> check_duplicate_cards = { false };
 
 	for (std::uint8_t i = 0; i < initial_player_cards.size(); ++i) {
@@ -449,7 +456,22 @@ std::optional<double> monte_carlo_evaluation(
 		}
 	}
 
-	const std::uint8_t opponent_number = players - 1;
+	for (std::uint8_t i = 0; i < initial_opponent_cards.size(); ++i) {
+		std::uint8_t card_index_first = initial_opponent_cards[i].first.get_card_index();
+		std::uint8_t card_index_second = initial_opponent_cards[i].second.get_card_index();
+
+		if (!check_duplicate_cards[card_index_first]) {
+			check_duplicate_cards[card_index_first] = true;
+		} else {
+			return std::nullopt;
+		}
+
+		if (!check_duplicate_cards[card_index_second]) {
+			check_duplicate_cards[card_index_second] = true;
+		} else {
+			return std::nullopt;
+		}
+	}
 
 	std::array<Card, Card::COUNT_OF_ALL_CARDS> only_unique_cards;
 	std::size_t real_size = 0;
@@ -460,15 +482,26 @@ std::optional<double> monte_carlo_evaluation(
 		}
 	}
 
+	std::array<std::atomic<double>, MAX_PLAYERS> probabilities{};
+
 	T policy;
 
-	std::size_t wins = std::transform_reduce(
+	auto temp_range = std::views::iota(std::size_t{ 0 }, number_of_iterations);
+
+	std::for_each(
 		policy,
-		std::views::iota(std::size_t{ 0 }, number_of_iterations).begin(),
-		std::views::iota(std::size_t{ 0 }, number_of_iterations).end(),
-		std::size_t{ 0 },
-		std::plus<>(),
-	[&only_unique_cards, &initial_player_cards, &initial_table_cards, players, real_size, opponent_number](std::size_t) -> std::size_t {
+		temp_range.begin(),
+		temp_range.end(),
+	[
+		&only_unique_cards,
+		&probabilities,
+		&initial_player_cards,
+		&initial_table_cards,
+		&initial_opponent_cards,
+		players,
+		real_size,
+		opponent_number
+	](std::size_t) {
 		auto cards = only_unique_cards;
 
 		thread_local std::mt19937_64 rng(std::random_device{}());
@@ -500,9 +533,17 @@ std::optional<double> monte_carlo_evaluation(
 
 		std::array<std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER>, MAX_PLAYERS> opponents_cards;
 
-		for (std::size_t i = 0; i < opponent_number; ++i) {
-			for (std::uint8_t j = 0; j < Card::COUNT_OF_CARDS_IN_HAND; ++j) {
-				opponents_cards[i][j] = cards[global_card_counter++];
+		for (std::size_t i = 0, current_opponent = 0; i < opponent_number; ++i) {
+			if (current_opponent < initial_opponent_cards.size()) {
+				opponents_cards[i][0] = initial_opponent_cards[current_opponent].first;
+				opponents_cards[i][1] = initial_opponent_cards[current_opponent].second;
+
+				++current_opponent;
+			}
+			else {
+				for (std::uint8_t j = 0; j < Card::COUNT_OF_CARDS_IN_HAND; ++j) {
+					opponents_cards[i][j] = cards[global_card_counter++];
+				}
 			}
 
 			for (std::uint8_t j = 0; j < Card::COUNT_OF_TABLE_CARDS_ON_RIVER; ++j) {
@@ -512,24 +553,32 @@ std::optional<double> monte_carlo_evaluation(
 
 		std::array<Poker_combination, MAX_PLAYERS> combinations;
 
-		if (auto opt = Poker_combination::create_combination_by_cards(player_cards); opt) {
-			combinations[0] = *opt;
-		} else {
-			return 0;
-		}
+		combinations[0] = *Poker_combination::create_combination_by_cards(player_cards);
 
-		for (std::uint8_t j = 0; j < opponent_number; ++j) {
-			if (auto opt = Poker_combination::create_combination_by_cards(opponents_cards[j]); opt) {
-				combinations[j + 1] = *opt;
-			} else {
-				return 0;
-			}
+		for (std::uint8_t i = 0; i < opponent_number; ++i) {
+			combinations[i + 1] = *Poker_combination::create_combination_by_cards(opponents_cards[i]);
 		}
 
 		auto res_it = std::max_element(combinations.begin(), combinations.begin() + players);
 
-		return combinations[0] == *res_it;
+		std::size_t count = std::count(combinations.begin(), combinations.begin() + players, *res_it);
+
+		for (std::uint8_t i = 0; i < players; ++i) {
+			if (*res_it == combinations[i]) {
+				double val = 1.0 / static_cast<double>(count);
+				probabilities[i].fetch_add(val, std::memory_order_relaxed);
+			}
+		}
 	});
 
-	return { static_cast<double>(wins) / static_cast<double>(number_of_iterations) };
+	const std::size_t sz = 1 + initial_opponent_cards.size();
+
+	std::vector<double> result(sz);
+
+	for (std::uint8_t i = 0; i < sz; ++i) {
+		double val = probabilities[i].load(std::memory_order_relaxed);
+		result[i] = val / static_cast<double>(number_of_iterations);
+	}
+
+	return result;
 }

@@ -255,15 +255,17 @@ void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std
 		cards[i] = *Card::create_by_index(i);
 	}
 
-	std::array<std::atomic<std::size_t>, 10> map_of_combinations = { 0 };
+	std::array<std::atomic<std::size_t>, 10> map_of_combinations{};
 
 	T policy;
 
+	auto temp_range = std::views::iota(std::size_t{ 0 }, number_of_iterations);
+
 	std::for_each(
 		policy,
-		std::views::iota(std::size_t{ 0 }, number_of_iterations).begin(),
-		std::views::iota(std::size_t{ 0 }, number_of_iterations).end(),
-	[&map_of_combinations, cards, opt_c](bool s) {
+		temp_range.begin(),
+		temp_range.end(),
+	[&map_of_combinations, &cards, opt_c](std::size_t) {
 		thread_local std::mt19937_64 rng(std::random_device{}());
 
 		std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER> cards_of_combinations;
@@ -274,7 +276,7 @@ void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std
 
 		auto hand = *Poker_combination::create_combination_by_cards(cards_of_combinations);
 
-		++map_of_combinations[static_cast<std::uint8_t>(hand.get_power())];
+		map_of_combinations[static_cast<std::uint8_t>(hand.get_power())].fetch_add(1, std::memory_order_relaxed);
 
 		if (opt_c && hand.get_power() == *opt_c) {
 			std::osyncstream sync_cout(std::cout);
@@ -293,13 +295,14 @@ void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std
 					sync_cout << *c << ' ';
 				}
 			}
-			sync_cout << '\n' << hand.get_power() << ": High cart - " << hand.get_high_card() << '\n' << '\n';
+			sync_cout << '\n' << hand.get_power() << ": High card - " << hand.get_high_card() << '\n' << '\n';
 		}
 	});
 
 	std::size_t total_sum = 0;
 	for (std::uint8_t i = 0; i < map_of_combinations.size(); ++i) {
-		std::size_t count = map_of_combinations[i];
+		std::size_t count = map_of_combinations[i].load(std::memory_order_relaxed);
+
 		if (count != 0) {
 			total_sum += count;
 			std::cout << static_cast<Combination>(i) << ": " << count << '\n';

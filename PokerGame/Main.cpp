@@ -16,12 +16,16 @@ int main() {
         auto result = monte_carlo_evaluation<std::execution::parallel_policy>(
             std::array{ *Card::ch("AS"), *Card::ch("AD") },
             std::array<Card, 0>{},
+            std::array<std::pair<Card, Card>, 0>{},
             2,
             10000
         );
 
         if (result) {
-            std::cout << i + 1 << ": " << static_cast<std::size_t>(*result * 100 + 0.5) << "% ";
+            std::cout << i + 1 << ": ";
+            for (auto d : *result) {
+                std::cout << std::fixed << std::setprecision(1) << (d * 100) << "% ";
+            }
         } else {
             std::cout << "Error ";
         }

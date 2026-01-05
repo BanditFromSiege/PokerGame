@@ -32,5 +32,11 @@
     <ClInclude Include="Card_Logic\Tests.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Card_Logic\Probability_evaluator.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Card_Logic\Poker_deck.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

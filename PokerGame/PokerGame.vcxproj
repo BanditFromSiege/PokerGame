@@ -136,6 +136,8 @@
   <ItemGroup>
     <ClInclude Include="Card_Logic\Card.h" />
     <ClInclude Include="Card_Logic\Poker_combination.h" />
+    <ClInclude Include="Card_Logic\Poker_deck.h" />
+    <ClInclude Include="Card_Logic\Probability_evaluator.h" />
     <ClInclude Include="Card_Logic\Tests.h" />
     <ClInclude Include="Card_Logic\Enums.h" />
   </ItemGroup>

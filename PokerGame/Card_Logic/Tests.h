@@ -249,11 +249,7 @@ template <typename T = std::execution::sequenced_policy>
 requires (std::is_same_v<T, std::execution::sequenced_policy>
 || std::is_same_v<T, std::execution::parallel_policy>)
 void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std::optional<Combination> opt_c = std::nullopt) {
-	std::array<Card, Card::COUNT_OF_ALL_CARDS> cards;
-	
-	for (std::uint8_t i = 0; i < cards.size(); ++i) {
-		cards[i] = *Card::create_by_index(i);
-	}
+	auto deck = *Poker_deck::create_poker_deck();
 
 	std::array<std::atomic<std::size_t>, 10> map_of_combinations{};
 
@@ -265,14 +261,18 @@ void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std
 		policy,
 		temp_range.begin(),
 		temp_range.end(),
-	[&map_of_combinations, &cards, opt_c](std::size_t) {
+	[&map_of_combinations, &deck, opt_c](std::size_t) {
+		auto cards = deck;
+
 		thread_local std::mt19937_64 rng(std::random_device{}());
+
+		cards.shuffle(rng);
 
 		std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER> cards_of_combinations;
 
-		std::sample(
-			cards.begin(), cards.end(), cards_of_combinations.begin(), Card::COUNT_OF_CARDS_ON_RIVER, rng
-		);
+		for (std::uint8_t i = 0; i < cards_of_combinations.size(); ++i) {
+			cards_of_combinations[i] = *cards.get_card();
+		}
 
 		auto hand = *Poker_combination::create_combination_by_cards(cards_of_combinations);
 

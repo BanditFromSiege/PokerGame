@@ -131,7 +131,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game_Logic\Player.cpp" />
+    <ClCompile Include="Game_Logic\Table.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Game_Logic\Pot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card_Logic\Card.h" />
@@ -140,6 +143,11 @@
     <ClInclude Include="Card_Logic\Probability_evaluator.h" />
     <ClInclude Include="Card_Logic\Tests.h" />
     <ClInclude Include="Card_Logic\Enums.h" />
+    <ClInclude Include="Game_Logic\Enums.h" />
+    <ClInclude Include="Game_Logic\Player.h" />
+    <ClInclude Include="Game_Logic\Poker_game_manager.h" />
+    <ClInclude Include="Game_Logic\Table.h" />
+    <ClInclude Include="Game_Logic\Pot.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

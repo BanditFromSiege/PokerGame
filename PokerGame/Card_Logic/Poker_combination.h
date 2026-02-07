@@ -29,11 +29,11 @@ private:
 		std::array<Card, Card::COUNT_OF_CARDS_ON_FLOP> combination_6 =
 		{ span_of_cards[5], span_of_cards[1], span_of_cards[2], span_of_cards[3], span_of_cards[4] };
 
-		std::array<std::array<Card, Card::COUNT_OF_CARDS_ON_FLOP>, Card::COUNT_OF_CARDS_ON_TERN> combinations = {
+		std::array<std::array<Card, Card::COUNT_OF_CARDS_ON_FLOP>, Card::COUNT_OF_CARDS_ON_TURN> combinations = {
 			combination_1, combination_2, combination_3, combination_4, combination_5, combination_6
 		};
 
-		std::array<Poker_combination, Card::COUNT_OF_CARDS_ON_TERN> poker_combinations;
+		std::array<Poker_combination, Card::COUNT_OF_CARDS_ON_TURN> poker_combinations;
 
 		for (std::uint8_t i = 0; i < poker_combinations.size(); ++i) {
 			auto c = create_combination_by_cards(combinations[i]);
@@ -50,28 +50,28 @@ private:
 	}
 
 	static constexpr std::optional<Poker_combination> find_best_seven_cards(std::span<const Card> span_of_cards) noexcept {
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_1 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_1 =
 		{ span_of_cards[0], span_of_cards[1], span_of_cards[2], span_of_cards[3], span_of_cards[4], span_of_cards[5] };
 
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_2 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_2 =
 		{ span_of_cards[0], span_of_cards[1], span_of_cards[2], span_of_cards[3], span_of_cards[4], span_of_cards[6] };
 
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_3 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_3 =
 		{ span_of_cards[0], span_of_cards[1], span_of_cards[2], span_of_cards[3], span_of_cards[5], span_of_cards[6] };
 
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_4 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_4 =
 		{ span_of_cards[0], span_of_cards[1], span_of_cards[2], span_of_cards[4], span_of_cards[5], span_of_cards[6] };
 
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_5 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_5 =
 		{ span_of_cards[0], span_of_cards[1], span_of_cards[3], span_of_cards[4], span_of_cards[5], span_of_cards[6] };
 
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_6 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_6 =
 		{ span_of_cards[0], span_of_cards[2], span_of_cards[3], span_of_cards[4], span_of_cards[5], span_of_cards[6] };
 
-		std::array<Card, Card::COUNT_OF_CARDS_ON_TERN> combination_7 =
+		std::array<Card, Card::COUNT_OF_CARDS_ON_TURN> combination_7 =
 		{ span_of_cards[1], span_of_cards[2], span_of_cards[3], span_of_cards[4], span_of_cards[5], span_of_cards[6] };
 
-		std::array<std::array<Card, Card::COUNT_OF_CARDS_ON_TERN>, Card::COUNT_OF_CARDS_ON_RIVER> combinations = {
+		std::array<std::array<Card, Card::COUNT_OF_CARDS_ON_TURN>, Card::COUNT_OF_CARDS_ON_RIVER> combinations = {
 			combination_1, combination_2, combination_3, combination_4, combination_5, combination_6, combination_7
 		};
 
@@ -113,7 +113,7 @@ public:
 		if (span_of_cards.size() == Card::COUNT_OF_CARDS_ON_RIVER) {
 			return find_best_seven_cards(span_of_cards);
 		}
-		else if (span_of_cards.size() == Card::COUNT_OF_CARDS_ON_TERN) {
+		else if (span_of_cards.size() == Card::COUNT_OF_CARDS_ON_TURN) {
 			return find_best_six_cards(span_of_cards);
 		}
 		else if (span_of_cards.size() != Card::COUNT_OF_CARDS_ON_FLOP) {

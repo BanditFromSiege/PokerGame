@@ -6,16 +6,17 @@ class Card final {
 private:
 	Card_value rank = Card_value::Two;
 	Card_suit suit = Card_suit::Hearts;
+
 public:
 	static constexpr std::uint8_t COUNT_OF_CARDS_ON_PREFLOP = 2;
 	static constexpr std::uint8_t COUNT_OF_CARDS_ON_FLOP = 5;
-	static constexpr std::uint8_t COUNT_OF_CARDS_ON_TERN = 6;
+	static constexpr std::uint8_t COUNT_OF_CARDS_ON_TURN = 6;
 	static constexpr std::uint8_t COUNT_OF_CARDS_ON_RIVER = 7;
 	static constexpr std::uint8_t COUNT_OF_ALL_CARDS = 52;
 
 	static constexpr std::uint8_t COUNT_OF_CARDS_IN_HAND = 2;
 	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_FLOP = 3;
-	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_TERN = 4;
+	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_TURN = 4;
 	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_RIVER = 5;
 
 	constexpr Card() noexcept = default;

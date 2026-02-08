@@ -1,6 +1,7 @@
 #pragma once
 #include "Poker_combination.h"
 #include <syncstream>
+#include <iomanip>
 
 consteval void TESTS() noexcept {
 	auto run_test = [](
@@ -243,6 +244,69 @@ consteval void TESTS() noexcept {
 		{ *Card::ch("AH"), *Card::ch("AD"), *Card::ch("AC"), *Card::ch("AS"), *Card::ch("8D"), *Card::ch("9H"), *Card::ch("7C") },
 		{ *Card::ch("AH"), *Card::ch("AD"), *Card::ch("AC"), *Card::ch("AS"), *Card::ch("8D"), *Card::ch("7H"), *Card::ch("6D") },
 	Result::Win), "Error");
+
+	static_assert(run_test(
+		{ *Card::ch("2H"), *Card::ch("3D"), *Card::ch("4C"), *Card::ch("5S"), *Card::ch("6D") },
+		{ *Card::ch("2H"), *Card::ch("3D"), *Card::ch("4C"), *Card::ch("5S"), *Card::ch("AD") },
+	Result::Win), "Error");
+
+	static_assert(run_test(
+		{ *Card::ch("2H"), *Card::ch("3D"), *Card::ch("4C"), *Card::ch("5S"), *Card::ch("AD") },
+		{ *Card::ch("2H"), *Card::ch("3D"), *Card::ch("4C"), *Card::ch("AS"), *Card::ch("KD") },
+	Result::Win), "Error");
+
+	//Tests of Straight
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("AH"), *Card::ch("2D"), *Card::ch("3C"), *Card::ch("4S"), *Card::ch("5D") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("2H"), *Card::ch("3D"), *Card::ch("4C"), *Card::ch("5S"), *Card::ch("6D") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("3H"), *Card::ch("4D"), *Card::ch("5C"), *Card::ch("6S"), *Card::ch("7D") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("4H"), *Card::ch("5D"), *Card::ch("6C"), *Card::ch("7S"), *Card::ch("8D") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("5H"), *Card::ch("6D"), *Card::ch("7C"), *Card::ch("8S"), *Card::ch("9D") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("6H"), *Card::ch("7D"), *Card::ch("8C"), *Card::ch("9S"), *Card::ch("TD") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("7H"), *Card::ch("8D"), *Card::ch("9C"), *Card::ch("TS"), *Card::ch("JD") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("8H"), *Card::ch("9D"), *Card::ch("TC"), *Card::ch("JS"), *Card::ch("QD") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("9H"), *Card::ch("TD"), *Card::ch("JC"), *Card::ch("QS"), *Card::ch("KD") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("TH"), *Card::ch("JD"), *Card::ch("QC"), *Card::ch("KS"), *Card::ch("AD") }
+	)->get_power() == Combination::Straight, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("JD"), *Card::ch("QC"), *Card::ch("KS"), *Card::ch("AD"), *Card::ch("2H") }
+	)->get_power() == Combination::High_card, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("QC"), *Card::ch("KS"), *Card::ch("AD"), *Card::ch("2H"), *Card::ch("3H") }
+	)->get_power() == Combination::High_card, "Error");
+
+	static_assert(Poker_combination::create_combination_by_cards(
+		std::array{ *Card::ch("KS"), *Card::ch("AD"), *Card::ch("2H"), *Card::ch("3H"), *Card::ch("4H") }
+	)->get_power() == Combination::High_card, "Error");
 }
 
 template <typename T = std::execution::sequenced_policy>
@@ -305,7 +369,11 @@ void Test_distribution_of_seven_comb_cards(std::size_t number_of_iterations, std
 
 		if (count != 0) {
 			total_sum += count;
-			std::cout << static_cast<Combination>(i) << ": " << count << '\n';
+			std::cout << static_cast<Combination>(i) << ": " << count << " - ";
+
+			double percent = static_cast<double>(count) / static_cast<double>(number_of_iterations);
+
+			std::cout << std::fixed << std::setprecision(3) << (percent * 100) << "%\n";
 		}
 	}
 

@@ -169,7 +169,7 @@ public:
 			++flush;
 		}
 
-		//Street check;
+		//Straight check
 		std::uint8_t straight_series = 0;
 		for (std::uint8_t i = 1; i < player_cards_size; ++i) {
 			if (Card::get_poker_card_value(player_cards[i].first)
@@ -181,7 +181,8 @@ public:
 
 		bool ace_low = false;
 		if (player_cards[player_cards_size - 1].first == Card_value::Ace
-			&& player_cards[0].first == Card_value::Two)
+			&& player_cards[0].first == Card_value::Two
+			&& player_cards[player_cards_size - 2].first != Card_value::King)
 		{
 			++straight_series;
 			ace_low = true;
@@ -323,12 +324,11 @@ public:
 		if (second_high_card) {
 			kickers[count_of_kickers++] = second_high_card;
 		}
-		std::reverse(kickers.begin(), kickers.end());
 
-		if (ace_low) {
-			for (std::uint8_t i = 0; i + 1 < kickers.size(); ++i) {
-				std::swap(kickers[i], kickers[i + 1]);
-			}
+		if (!ace_low) {
+			std::reverse(kickers.begin(), kickers.end());
+		} else {
+			std::reverse(kickers.begin(), std::prev(kickers.end()));
 		}
 
 		return Poker_combination{ power, high_card, kickers };
@@ -346,7 +346,7 @@ constexpr bool operator<(const Poker_combination& comb1, const Poker_combination
 			auto kickers2 = comb2.get_kickers();
 
 			for (std::uint8_t i = 0; i < kickers1.size(); ++i) {
-				if ((kickers1[i].has_value() && kickers2[i].has_value())
+				if ((kickers1[i] && kickers2[i])
 					&& (Card::get_poker_card_value(*kickers1[i]) != Card::get_poker_card_value(*kickers2[i])))
 				{
 					return Card::get_poker_card_value(*kickers1[i]) < Card::get_poker_card_value(*kickers2[i]);

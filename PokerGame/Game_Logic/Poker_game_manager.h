@@ -1,20 +1,20 @@
 #pragma once
 #include "Table.h"
-#include <string>
-#include <unordered_map>
 
 template <typename T = std::execution::sequenced_policy>
 requires (std::is_same_v<T, std::execution::sequenced_policy> || std::is_same_v<T, std::execution::parallel_policy>)
 class Poker_game_manager final {
 private:
 	Poker_deck deck;
-	std::vector<Player> players{};
-	std::vector<std::uint8_t> players_index{};
 	Table table;
 
-	std::mt19937_64 rng{ std::random_device{}() };
+	std::vector<std::uint8_t> players_index{};
+	std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>> winners_and_rewards{};
 
-	Poker_stage stage = Poker_stage::Preflop;
+	std::vector<Player>& players;
+	std::mt19937_64& rng;
+
+	Poker_stage stage = Poker_stage::Preparation_preflop;
 
 	Probability_evaluator<T> ev;
 
@@ -22,6 +22,13 @@ private:
 	std::uint8_t small_blind_position_index = 0;
 
 	std::uint8_t active_players = 0;
+
+	std::uint8_t current_player_index_id = 0;
+	std::uint8_t current_bank_index_id = 0;
+
+	Player* current_player = nullptr;
+
+	bool is_game_run = true;
 
 	void rotate_players(std::uint8_t new_index) noexcept {
 		std::uint8_t current_index = players_index.front();
@@ -33,14 +40,22 @@ private:
 	}
 
 	void make_initial_bets_for_2_players(std::uint8_t& current_player_index) noexcept {
-		std::uint8_t small_blind_position = players_index[small_blind_position_index];
+		std::uint8_t small_blind_position = players_index[dealer_position_index];
+		std::uint8_t big_blind_position = players_index[small_blind_position_index];
+
+		std::size_t big_blind = players[big_blind_position].get_current_big_blind();
+		std::size_t small_blind = big_blind / 2;
 
 		std::size_t sb_bet
-			= players[small_blind_position].make_bet_or_check(players[small_blind_position].get_current_big_blind() / 2);
+			= players[small_blind_position].make_bet_or_check(small_blind);
 
-		table.set_current_bet(players[small_blind_position].get_current_big_blind());
+		std::size_t bb_bet
+			= players[big_blind_position].make_bet_or_check(big_blind);
+
+		table.set_current_bet(big_blind);
 
 		table.add_to_sum_of_bets(sb_bet);
+		table.add_to_sum_of_bets(bb_bet);
 
 		current_player_index = dealer_position_index;
 	}
@@ -51,13 +66,16 @@ private:
 		std::uint8_t small_blind_position = players_index[small_blind_position_index];
 		std::uint8_t big_blind_position = players_index[big_blind_position_index];
 
+		std::size_t big_blind = players[big_blind_position].get_current_big_blind();
+		std::size_t small_blind = big_blind / 2;
+
 		std::size_t sb_bet
-			= players[small_blind_position].make_bet_or_check(players[small_blind_position].get_current_big_blind() / 2);
+			= players[small_blind_position].make_bet_or_check(small_blind);
 
 		std::size_t bb_bet
-			= players[big_blind_position].make_bet_or_check(players[big_blind_position].get_current_big_blind());
+			= players[big_blind_position].make_bet_or_check(big_blind);
 
-		table.set_current_bet(bb_bet);
+		table.set_current_bet(big_blind);
 
 		table.add_to_sum_of_bets(sb_bet);
 		table.add_to_sum_of_bets(bb_bet);
@@ -73,13 +91,16 @@ private:
 		std::uint8_t small_blind_position = players_index[small_blind_position_index];
 		std::uint8_t big_blind_position = players_index[big_blind_position_index];
 
+		std::size_t big_blind = players[big_blind_position].get_current_big_blind();
+		std::size_t small_blind = big_blind / 2;
+
 		std::size_t sb_bet
-			= players[small_blind_position].make_bet_or_check(players[small_blind_position].get_current_big_blind() / 2);
+			= players[small_blind_position].make_bet_or_check(small_blind);
 
 		std::size_t bb_bet
-			= players[big_blind_position].make_bet_or_check(players[big_blind_position].get_current_big_blind());
+			= players[big_blind_position].make_bet_or_check(big_blind);
 
-		table.set_current_bet(bb_bet);
+		table.set_current_bet(big_blind);
 
 		table.add_to_sum_of_bets(sb_bet);
 		table.add_to_sum_of_bets(bb_bet);
@@ -92,7 +113,6 @@ private:
 
 		small_blind_position_index = (dealer_position_index + 1) % players_index.size();
 
-		stage = Poker_stage::Preflop;
 		active_players = 0;
 
 		for (auto& player : players) {
@@ -104,14 +124,9 @@ private:
 				++active_players;
 			}
 		}
-
-		std::cout << "ACTIVE PLAYERS: " << (int)active_players << '\n';
-		std::cout << "Dealer: " << players[players_index[dealer_position_index]].get_name() << '\n';
 	}
 
 	void prepare_to_Flop() noexcept {
-		stage = Poker_stage::Flop;
-
 		Card c1 = *deck.get_card();
 		Card c2 = *deck.get_card();
 		Card c3 = *deck.get_card();
@@ -128,11 +143,11 @@ private:
 				p.set_current_bet(0);
 			}
 		}
+
+		std::sort(players_index.begin(), players_index.end());
 	}
 
 	void prepare_to_Turn() noexcept {
-		stage = Poker_stage::Turn;
-
 		Card c4 = *deck.get_card();
 
 		table.add_card(c4);
@@ -145,11 +160,11 @@ private:
 				p.set_current_bet(0);
 			}
 		}
+
+		std::sort(players_index.begin(), players_index.end());
 	}
 
 	void prepare_to_River() noexcept {
-		stage = Poker_stage::River;
-
 		Card c5 = *deck.get_card();
 
 		table.add_card(c5);
@@ -162,9 +177,11 @@ private:
 				p.set_current_bet(0);
 			}
 		}
+
+		std::sort(players_index.begin(), players_index.end());
 	}
 
-	void add_bets_to_pots() {
+	void add_bets_to_pots() noexcept {
 		std::vector<std::pair<std::uint8_t, std::size_t>> contribs;
 
 		for (const Player& p : players) {
@@ -179,9 +196,7 @@ private:
 			}
 		);
 
-		auto& pots = table.get_pots();
-
-		pots.clear();
+		std::array<std::size_t, (1ull << Probability_evaluator<>::MAX_PLAYERS)> merged{};
 
 		std::size_t prev = 0;
 
@@ -193,79 +208,61 @@ private:
 				continue;
 			}
 
-			std::vector<std::uint8_t> vec_players_id;
+			std::uint8_t depositors_players_count = 0;
+			std::uint8_t present_players_mask = 0;
 
 			for (std::size_t j = i; j < contribs.size(); ++j) {
-				if (players[contribs[j].first].is_active() || players[contribs[j].first].is_all_in()) {
-					vec_players_id.push_back(contribs[j].first);
+				++depositors_players_count;
+
+				auto id = contribs[j].first;
+
+				if (players[id].is_active() || players[id].is_all_in()) {
+					present_players_mask |= (1ull << id);
 				}
 			}
 
-			std::size_t participants = vec_players_id.size();
-
-			if (participants > 0) {
-				Pot pot;
-				pot.set_bank(diff * participants);
-				pot.set_players_id_in_pot(std::move(vec_players_id));
-				pots.push_back(std::move(pot));
+			if (present_players_mask != 0) {
+				merged[present_players_mask] += diff * depositors_players_count;
 			}
 
 			prev = level;
 		}
 
-		static std::unordered_map<
-			std::vector<uint8_t>,
-			std::size_t,
-			decltype([](const std::vector<uint8_t>& v) {
-				std::size_t h = 0;
-				for (auto x : v) {
-					h = h * 31 + x;
-				}
-				return h;
-			})
-		> merged;
-
-		merged.clear();
-
-		for (auto& pot : pots) {
-			auto ids = pot.get_players_id();
-			std::sort(ids.begin(), ids.end());
-			merged[ids] += pot.get_bank();
-		}
+		auto& pots = table.get_pots();
 
 		pots.clear();
 
-		for (auto& [ids, bank] : merged) {
-			Pot pot;
-			pot.set_players_id_in_pot(ids);
-			pot.set_bank(bank);
-			pots.push_back(std::move(pot));
+		for (std::size_t i = 0; i < merged.size(); ++i) {
+			if (merged[i] != 0) {
+				std::vector<std::uint8_t> ids;
+
+				for (std::uint8_t id = 0; id < Probability_evaluator<T>::MAX_PLAYERS; ++id) {
+					if (i & (1ull << id)) {
+						ids.push_back(id);
+					}
+				}
+
+				if (ids.size() == 1) {
+					players[ids.front()].get_win(merged[i]);
+				}
+				else {
+					Pot pot;
+					pot.set_players_id_in_pot(std::move(ids));
+					pot.set_bank(merged[i]);
+					pots.push_back(std::move(pot));
+				}
+			}
 		}
 	}
 
-public:
-	Poker_game_manager(std::uint8_t number_players, std::size_t money) noexcept {
-		deck = *Poker_deck::create_poker_deck();
-		deck.shuffle(rng);
+	void perform_stage() noexcept {
+		if (stage == Poker_stage::Preparation_preflop) {
+			winners_and_rewards.clear();
 
-		players.reserve(number_players);
+			prepare_to_Preflop();
 
-		for (std::uint8_t i = 0; i < number_players; ++i) {
-			std::string name = "Bot_";
-			name += std::to_string(i + 1);
-			players.emplace_back(Player{ name.c_str(), i, 1000 });
-			players_index.emplace_back(i);
-		}
+			std::uint8_t current_player_index = 0;
 
-		std::uniform_int_distribution<> random_dealer_place(0, players_index.size() - 1);
-
-		dealer_position_index = random_dealer_place(rng);
-	}
-
-	bool perform_stage() noexcept {
-		std::uint8_t current_player_index = 0;
-
-		if (stage == Poker_stage::Preflop) {
 			if (players_index.size() == 2) {
 				make_initial_bets_for_2_players(current_player_index);
 			}
@@ -275,200 +272,216 @@ public:
 			else {
 				make_initial_bets_for_more_then_3_players(current_player_index);
 			}
+
+			rotate_players(players_index[current_player_index]);
+
+			stage = Poker_stage::Preflop;
+
+			current_player_index_id = 0;
+		}
+		else if (stage == Poker_stage::Preparation_flop) {
+			current_player = nullptr;
+
+			prepare_to_Flop();
+
+			rotate_players(players_index[small_blind_position_index]);
+
+			stage = Poker_stage::Flop;
+			current_player_index_id = 0;
+		}
+		else if (stage == Poker_stage::Preparation_turn) {
+			current_player = nullptr;
+
+			prepare_to_Turn();
+
+			rotate_players(players_index[small_blind_position_index]);
+
+			stage = Poker_stage::Turn;
+			current_player_index_id = 0;
+		}
+		else if (stage == Poker_stage::Preparation_river) {
+			current_player = nullptr;
+
+			prepare_to_River();
+
+			rotate_players(players_index[small_blind_position_index]);
+
+			stage = Poker_stage::River;
+			current_player_index_id = 0;
+		}
+		else if (stage == Poker_stage::Showdown) {
+			current_player = nullptr;
+
+			perform_showdown_step();
+		}
+		else if (stage == Poker_stage::After_showdown) {
+			is_game_run = reset();
+
+			if (is_game_run) {
+				stage = Poker_stage::Preparation_preflop;
+			}
 		}
 		else {
-			std::cout << '\n';
-
-			std::cout << "Table cards: ";
-
-			for (Card c : table.get_cards()) {
-				std::cout << c << ' ';
-			}
-			std::cout << '\n';
-
-			std::cout << "Table banks:\n";
-			for (const Pot& pot : table.get_pots()) {
-				std::cout << pot.get_bank() << " Players_id: ";
-				for (auto id : pot.get_players_id()) {
-					std::cout << (int)id << ' ';
-				}
-				std::cout << '\n';
-			}
-			std::cout << '\n';
-
-			current_player_index = small_blind_position_index;
+			perform_player_step();
 		}
+	}
 
-		rotate_players(players_index[current_player_index]);
-
-		for (std::size_t i = 0; i < players_index.size(); ++i) {
-			Player& p = players[players_index[i]];
+	void perform_player_step() noexcept {
+		if (current_player_index_id < players_index.size()) {
+			Player& p = players[players_index[current_player_index_id]];
 
 			if (!p.is_active()) {
 				if (p.is_all_in()) {
-					std::cout << "Player: " << p.get_name() << " | Money: " << p.get_money()
-						<< " | Cards: " << p.get_cards()[0] << ' ' << p.get_cards()[1]
-						<< " | Status: " << Player_status::All_in << '\n';
+					current_player = std::addressof(p);
+				} else {
+					current_player = nullptr;
 				}
-
-				continue;
-			}
-
-			std::cout << "Player: " << p.get_name() << " | Money: " << p.get_money()
-				<< " | Cards: " << p.get_cards()[0] << ' ' << p.get_cards()[1];
-
-			auto [move, new_bet] = p.make_decision(
-				rng,
-				ev,
-				table.get_cards(),
-				active_players,
-				table.get_bank_for_player(p) + table.get_sum_of_bets(),
-				table.get_current_bet());
-
-			std::cout << " | Status: " << move;
-
-			if (move == Player_action::Call || move == Player_action::Raise) {
-				auto diff = p.make_bet_or_check(new_bet);
-				table.add_to_sum_of_bets(diff);
-
-				std::cout << " | Bet: " << diff << '\n';
-
-				if (new_bet > table.get_current_bet()) {
-					table.set_current_bet(new_bet);
-				}
-
-				if (move == Player_action::Raise) {
-					rotate_players(players_index[i]);
-					i = 0;
-				}
-			}
-			else if (move == Player_action::Fold) {
-				std::cout << " | Bet: " << new_bet << '\n';
-				p.make_fold();
-				--active_players;
-			}
-			else if (move == Player_action::Check) {
-				std::cout << " | Bet: " << new_bet << '\n';
-			}
-
-			if (active_players == 1) {
-				auto p_it = std::find_if(players.begin(), players.end(), [](auto& p) {
-					return p.is_active() || p.is_all_in();
-				});
-
-				std::cout << "WIN: " << p_it->get_name() << '\n';
-				p_it->get_win(table.get_sum_of_bets() + table.get_bank_for_player(*p_it));
-
-				return false;
-			}
-		}
-
-		add_bets_to_pots();
-
-		return true;
-	}
-
-	void Showdown() {
-		std::cout << "\nShowdown: " << '\n';
-
-		const auto& banks = table.get_pots();
-
-		std::cout << "Number of banks: " << banks.size() << '\n';
-
-		for (std::uint8_t i = 0; i < banks.size(); ++i) {
-			std::cout << i + 1 << ": " << banks[i].get_bank() << " pot, Players_id: ";
-			for (int x : banks[i].get_players_id()) {
-				std::cout << x << ' ';
-			}
-			std::cout << '\n';
-		}
-		std::cout << '\n';
-
-		for (std::uint8_t i = 0; i < banks.size(); ++i) {
-			auto current_bank = banks[i].get_bank();
-			const auto& players_in_bank = banks[i].get_players_id();
-
-			if (players_in_bank.size() == 1) {
-				std::cout << "WIN this bank: " << players[players_in_bank.front()].get_name() << '\n';
-
-				players[players_in_bank.front()].get_win(current_bank);
-
-				continue;
-			}
-
-			std::vector<std::pair<Player*, Poker_combination>> active_p(players_in_bank.size());
-
-			for (std::uint8_t i = 0; i < active_p.size(); ++i) {
-				auto& p = players[players_in_bank[i]];
-
-				auto arr_player_cards = p.get_cards();
-				const auto& arr_table_cards = table.get_cards();
-
-				std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER> all_cards;
-
-				all_cards[0] = arr_player_cards[0];
-				all_cards[1] = arr_player_cards[1];
-
-				for (std::uint8_t j = 0; j < arr_table_cards.size(); ++j) {
-					all_cards[j + 2] = arr_table_cards[j];
-				}
-
-				active_p[i] = { &p, *Poker_combination::create_combination_by_cards(all_cards) };
-			}
-
-			auto best_comb = std::max_element(active_p.begin(), active_p.end(), [](auto& p1, auto& p2) {
-				return p1.second < p2.second;
-			});
-
-			std::size_t count = std::count_if(active_p.begin(), active_p.end(), [&best_comb](auto& p) {
-				return p.second == best_comb->second;
-			});
-
-			if (count == 1) {
-				std::cout << "WIN this bank: " << best_comb->first->get_name() << '\n';
-
-				best_comb->second.show_combination();
-
-				best_comb->first->get_win(current_bank);
 			}
 			else {
-				std::cout << "WIN this bank: ";
+				current_player = std::addressof(p);
 
-				current_bank /= count;
+				auto [move, new_bet] = p.make_decision(
+					rng,
+					ev,
+					std::span(table.get_cards()),
+					std::span(players),
+					table.get_bank_for_player(p) + table.get_sum_of_bets(),
+					table.get_current_bet());
 
-				for (auto& p : active_p) {
-					if (p.second == best_comb->second) {
-						std::cout << p.first->get_name() << ' ';
-						p.first->get_win(current_bank);
+				p.set_action(move);
+
+				if (move == Player_action::Call || move == Player_action::Raise) {
+					auto diff = p.make_bet_or_check(new_bet);
+					table.add_to_sum_of_bets(diff);
+
+					if (new_bet > table.get_current_bet()) {
+						table.set_current_bet(new_bet);
+					}
+
+					if (move == Player_action::Raise) {
+						rotate_players(players_index[current_player_index_id]);
+						current_player_index_id = 0;
 					}
 				}
+				else if (move == Player_action::Fold) {
+					p.make_fold();
+					--active_players;
+				}
 
-				best_comb->second.show_combination();
+				if (active_players == 1) {
+					auto p_it = std::find_if(players.begin(), players.end(), [](auto& p) {
+						return p.is_active() || p.is_all_in();
+					});
+
+					winners_and_rewards.push_back({
+						table.get_sum_of_bets() + table.get_bank_for_player(*p_it),
+						std::vector{ p_it->get_id() }
+					});
+
+					stage = Poker_stage::After_showdown;
+				}
 			}
+
+			++current_player_index_id;
+		}
+		else {
+			current_player = nullptr;
+
+			add_bets_to_pots();
+
+			stage = static_cast<Poker_stage>(static_cast<std::uint8_t>(stage) + 1);
+		}
+	}
+
+	void perform_showdown_step() {
+		const auto& banks = table.get_pots();
+
+		if (current_bank_index_id < banks.size()) {
+			auto current_bank = banks[current_bank_index_id].get_bank();
+			const auto& players_in_bank = banks[current_bank_index_id].get_players_id();
+
+			if (players_in_bank.size() == 1) {
+				winners_and_rewards.push_back({ current_bank, std::vector{players[players_in_bank.front()].get_id() } });
+			}
+			else {
+				std::vector<std::pair<Player*, Poker_combination>> active_p(players_in_bank.size());
+
+				for (std::uint8_t i = 0; i < active_p.size(); ++i) {
+					auto& p = players[players_in_bank[i]];
+
+					auto arr_player_cards = p.get_cards();
+					const auto& arr_table_cards = table.get_cards();
+
+					std::array<Card, Card::COUNT_OF_CARDS_ON_RIVER> all_cards;
+
+					all_cards[0] = arr_player_cards[0];
+					all_cards[1] = arr_player_cards[1];
+
+					for (std::uint8_t j = 0; j < arr_table_cards.size(); ++j) {
+						all_cards[j + 2] = arr_table_cards[j];
+					}
+
+					active_p[i] = { &p, *Poker_combination::create_combination_by_cards(all_cards) };
+				}
+
+				auto best_comb = std::max_element(active_p.begin(), active_p.end(), [](auto& p1, auto& p2) {
+					return p1.second < p2.second;
+				});
+
+				std::size_t count = std::count_if(active_p.begin(), active_p.end(), [&best_comb](auto& p) {
+					return p.second == best_comb->second;
+				});
+
+				if (count == 1) {
+					winners_and_rewards.push_back({ current_bank, std::vector{ best_comb->first->get_id()} });
+				}
+				else {
+					current_bank /= count;
+
+					std::vector<std::uint8_t> winners_id(count);
+
+					for (std::uint8_t i = 0; const auto& p : active_p) {
+						if (p.second == best_comb->second) {
+							winners_id[i++] = p.first->get_id();
+						}
+					}
+
+					winners_and_rewards.push_back({ current_bank, std::move(winners_id) });
+				}
+			}
+
+			++current_bank_index_id;
+		}
+		else {
+			stage = Poker_stage::After_showdown;
+
+			current_bank_index_id = 0;
 		}
 	}
 
 	bool reset() noexcept {
+		for (const auto& pair : winners_and_rewards) {
+			for (std::uint8_t id : pair.second) {
+				players[id].get_win(pair.first);
+			}
+		}
+
 		deck.shuffle(rng);
 
 		for (auto& p : players) {
-			p.set_sum_of_bets(0);
-			p.set_current_bet(0);
+			p.reset_for_new_hand();
 
 			p.check_money_enough();
 
 			if (!p.is_in_game()) {
 				auto it = std::find(players_index.begin(), players_index.end(), p.get_id());
 				if (it != players_index.end()) {
-					std::cout << players[*it].get_name() << " - Out from game\n";
-
 					players_index.erase(it);
 				}
 			}
 		}
 
 		if (players_index.size() == 1) {
-			std::cout << "WIN in game: " << players[players_index.front()].get_name() << '\n';
 			return false;
 		}
 
@@ -476,40 +489,56 @@ public:
 
 		table.clear();
 
-		std::cout << '\n';
 		return true;
 	}
 
-	void Run() noexcept {
-		bool continue_game = true;
+public:
+	Poker_game_manager(std::mt19937_64& rng, std::vector<Player>& players)
+		noexcept : players(players), rng(rng)
+	{
+		deck = *Poker_deck::create_poker_deck();
+		deck.shuffle(rng);
 
-		do {
-			bool c = true;
-			if (c) {
-				prepare_to_Preflop();
-				c = perform_stage();
-			}
+		for (std::uint8_t i = 0; i < players.size(); ++i) {
+			players_index.emplace_back(i);
+		}
 
-			if (c) {
-				prepare_to_Flop();
-				c = perform_stage();
-			}
+		std::uniform_int_distribution<> random_dealer_place(0, players_index.size() - 1);
 
-			if (c) {
-				prepare_to_Turn();
-				c = perform_stage();
-			}
+		dealer_position_index = random_dealer_place(rng);
+	}
 
-			if (c) {
-				prepare_to_River();
-				c = perform_stage();
-			}
+	const Table& get_table() noexcept {
+		return table;
+	}
 
-			if (c) {
-				Showdown();
-			}
+	Poker_stage get_current_stage() noexcept {
+		return stage;
+	}
 
-			continue_game = reset();
-		} while (continue_game);
+	bool is_game_still_run() noexcept {
+		return is_game_run;
+	}
+
+	const Player* get_current_player() noexcept {
+		return current_player;
+	}
+
+	const Player* get_dealer_player() noexcept {
+		return std::addressof(players[players_index[dealer_position_index]]);
+	}
+
+	std::uint8_t get_active_players() noexcept {
+		return active_players;
+	}
+
+	const std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>>& get_winners_and_rewards() noexcept {
+		return winners_and_rewards;
+	}
+
+	void call_next_move() noexcept {
+		if (is_game_run) {
+			perform_stage();
+		}
 	}
 };

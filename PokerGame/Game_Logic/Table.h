@@ -25,4 +25,6 @@ public:
 	void set_current_bet(std::size_t bet) noexcept;
 	void reset_sum_of_bets() noexcept;
 	void clear() noexcept;
+
+	void show_table() const noexcept;
 };

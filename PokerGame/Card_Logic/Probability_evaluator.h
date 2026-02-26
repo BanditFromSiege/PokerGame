@@ -14,7 +14,7 @@ private:
 		std::span<const Card> initial_player_cards,
 		std::span<const Card> initial_table_cards,
 		std::span<const std::pair<Card, Card>> initial_opponent_cards,
-		std::uint8_t players,
+		std::uint8_t number_of_players,
 		std::size_t number_of_iterations
 	) noexcept {
 		if (initial_player_cards.size() != Card::COUNT_OF_CARDS_ON_PREFLOP) {
@@ -27,14 +27,11 @@ private:
 			return std::nullopt;
 		}
 
-		constexpr std::uint8_t MAX_PLAYERS = 8;
-		constexpr std::uint8_t MIN_PLAYERS = 2;
-
-		if (players > MAX_PLAYERS || players < MIN_PLAYERS) {
+		if (number_of_players > MAX_PLAYERS || number_of_players < MIN_PLAYERS) {
 			return std::nullopt;
 		}
 
-		const std::uint8_t opponent_number = players - 1;
+		const std::uint8_t opponent_number = number_of_players - 1;
 
 		if (!initial_opponent_cards.empty() && initial_opponent_cards.size() > opponent_number) {
 			return std::nullopt;
@@ -86,7 +83,7 @@ private:
 			&initial_player_cards,
 			&initial_table_cards,
 			&initial_opponent_cards,
-			players,
+			number_of_players,
 			opponent_number
 		](std::size_t) {
 			if (failed.load(std::memory_order_relaxed)) {
@@ -169,11 +166,11 @@ private:
 				}
 			}
 
-			auto res_it = std::max_element(combinations.begin(), combinations.begin() + players);
+			auto res_it = std::max_element(combinations.begin(), combinations.begin() + number_of_players);
 
-			std::size_t count = std::count(combinations.begin(), combinations.begin() + players, *res_it);
+			std::size_t count = std::count(combinations.begin(), combinations.begin() + number_of_players, *res_it);
 
-			for (std::uint8_t i = 0; i < players; ++i) {
+			for (std::uint8_t i = 0; i < number_of_players; ++i) {
 				if (*res_it == combinations[i]) {
 					double val = 1.0 / static_cast<double>(count);
 					probabilities[i].fetch_add(val, std::memory_order_relaxed);
@@ -198,6 +195,9 @@ private:
 	}
 
 public:
+	static constexpr std::uint8_t MAX_PLAYERS = 8;
+	static constexpr std::uint8_t MIN_PLAYERS = 2;
+
 	Probability_evaluator() noexcept = default;
 
 	Probability_evaluator(std::size_t n) noexcept : iterations(n) {};
@@ -205,9 +205,15 @@ public:
 	std::optional<double> get_relative_probability(
 		std::span<const Card> initial_player_cards,
 		std::span<const Card> initial_table_cards,
-		std::uint8_t players
+		std::uint8_t number_of_players
 	) noexcept {
-		auto opt = monte_carlo_evaluation(initial_player_cards, initial_table_cards, {}, players, iterations);
+		auto opt = monte_carlo_evaluation(
+			initial_player_cards,
+			initial_table_cards,
+			{},
+			number_of_players,
+			iterations
+		);
 
 		if (opt) {
 			return (*opt)[0];
@@ -220,7 +226,7 @@ public:
 		std::span<const Card> initial_player_cards,
 		std::span<const Card> initial_table_cards,
 		std::span<const std::pair<Card, Card>> initial_opponent_cards,
-		std::uint8_t players
+		std::uint8_t number_of_players
 	) noexcept {
 		if (initial_opponent_cards.empty()) {
 			return std::nullopt;
@@ -230,7 +236,7 @@ public:
 			initial_player_cards,
 			initial_table_cards,
 			initial_opponent_cards,
-			players,
+			number_of_players,
 			iterations
 		);
 

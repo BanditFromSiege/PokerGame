@@ -148,6 +148,7 @@
     <ClInclude Include="Game_Logic\Poker_game_manager.h" />
     <ClInclude Include="Game_Logic\Table.h" />
     <ClInclude Include="Game_Logic\Pot.h" />
+    <ClInclude Include="Game_Logic\Tests.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

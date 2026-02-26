@@ -53,3 +53,22 @@ void Table::clear() noexcept {
 	current_bet = 0;
 	sum_of_bets = 0;
 }
+
+void Table::show_table() const noexcept {
+	std::cout << "Table cards: ";
+
+	for (Card c : table_cards) {
+		std::cout << c << ' ';
+	}
+	std::cout << '\n';
+
+	std::cout << "Table banks:\n";
+	for (const Pot& pot : pots) {
+		std::cout << pot.get_bank() << " Players_id: ";
+		for (auto id : pot.get_players_id()) {
+			std::cout << (int)id << ' ';
+		}
+		std::cout << '\n';
+	}
+	std::cout << '\n';
+}

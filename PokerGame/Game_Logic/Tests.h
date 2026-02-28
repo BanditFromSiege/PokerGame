@@ -25,7 +25,11 @@ void Test_poker_game_in_console(std::uint8_t number_of_players, Player_difficult
         });
     }
 
-    Poker_game_manager<T> manager(rng, players);
+    Poker_game_manager manager(rng, players);
+
+    if constexpr (std::is_same_v<T, std::execution::parallel_policy>) {
+        manager.set_evaluator_parallel_policy();
+    }
 
     while (manager.is_game_still_run()) {
         const auto stage = manager.get_current_stage();

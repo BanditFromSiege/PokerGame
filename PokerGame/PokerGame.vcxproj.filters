@@ -27,6 +27,9 @@
     <ClCompile Include="Game_Logic\Pot.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Game_Logic\Poker_game_manager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card_Logic\Enums.h">

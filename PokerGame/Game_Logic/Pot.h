@@ -17,6 +17,4 @@ public:
 
 	void set_players_id_in_pot(std::vector<std::uint8_t> vec) noexcept;
 	void set_bank(std::size_t b) noexcept;
-
-	void delete_player(const Player& p) noexcept;
 };

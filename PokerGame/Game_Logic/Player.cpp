@@ -2,8 +2,8 @@
 
 Player::Player() noexcept = default;
 
-Player::Player(const char* name, std::uint8_t id, std::size_t money, Player_difficulty d)
-	: name(name), id(id), money(money), current_big_blind(money / count_of_big_blinds), difficulty(d) {
+Player::Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d)
+	: name(std::move(name)), id(id), money(money), current_big_blind(money / count_of_big_blinds), difficulty(d) {
 }
 
 std::string Player::get_name() const noexcept {
@@ -109,11 +109,12 @@ void Player::reset_for_new_hand() noexcept {
 }
 
 std::size_t Player::make_bet_or_check(std::size_t bet) noexcept {
-	std::size_t diff = std::min<std::int64_t>(bet - current_bet, money);
+	std::size_t diff = bet - current_bet;
 
-	if (diff == money) {
+	if (diff >= money) {
+		diff = money;
 		status = Player_status::All_in;
-		current_bet = money;
+		current_bet += diff;
 	} else {
 		current_bet = bet;
 	}
@@ -122,7 +123,7 @@ std::size_t Player::make_bet_or_check(std::size_t bet) noexcept {
 	sum_of_bets += diff;
 
 	bet_difference = diff;
-	last_bet = bet;
+	last_bet = current_bet;
 	
 	return diff;
 }

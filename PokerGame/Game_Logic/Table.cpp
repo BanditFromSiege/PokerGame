@@ -6,12 +6,16 @@ void Table::add_card(Card c1) noexcept {
 	table_cards.push_back(c1);
 }
 
-void Table::add_to_sum_of_bets(std::size_t bet) noexcept {
-	sum_of_bets += bet;
+void Table::add_to_sum_of_bets_on_current_stage(std::size_t bet) noexcept {
+	sum_of_bets_on_current_stage += bet;
 }
 
 std::size_t Table::get_current_bet() const noexcept {
 	return current_bet;
+}
+
+std::size_t Table::get_last_bet_diff() const noexcept {
+	return last_bet_diff;
 }
 
 const std::vector<Card>& Table::get_cards() const noexcept {
@@ -34,16 +38,22 @@ std::vector<Pot>& Table::get_pots() noexcept {
 	return pots;
 }
 
-std::size_t Table::get_sum_of_bets() const noexcept {
-	return sum_of_bets;
+std::size_t Table::get_sum_of_bets_on_current_stage() const noexcept {
+	return sum_of_bets_on_current_stage;
 }
 
 void Table::set_current_bet(std::size_t bet) noexcept {
+	if (bet > current_bet) {
+		last_bet_diff = bet - current_bet;
+	} else {
+		last_bet_diff = 0;
+	}
+	
 	current_bet = bet;
 }
 
-void Table::reset_sum_of_bets() noexcept {
-	sum_of_bets = 0;
+void Table::reset_sum_of_bets_on_current_stage() noexcept {
+	sum_of_bets_on_current_stage = 0;
 }
 
 void Table::clear() noexcept {
@@ -51,7 +61,8 @@ void Table::clear() noexcept {
 	pots.clear();
 
 	current_bet = 0;
-	sum_of_bets = 0;
+	last_bet_diff = 0;
+	sum_of_bets_on_current_stage = 0;
 }
 
 void Table::show_table() const noexcept {

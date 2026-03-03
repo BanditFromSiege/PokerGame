@@ -32,13 +32,3 @@ void Pot::set_players_id_in_pot(std::vector<std::uint8_t> vec) noexcept {
 void Pot::set_bank(std::size_t b) noexcept {
     bank = b;
 }
-
-void Pot::delete_player(const Player& p) noexcept {
-    std::uint8_t p_id = p.get_id();
-
-    auto it = std::remove_if(players_id_in_pot.begin(), players_id_in_pot.end(),
-        [&p_id](auto id) { return id == p_id; }
-    );
-
-    players_id_in_pot.erase(it, players_id_in_pot.end());
-}

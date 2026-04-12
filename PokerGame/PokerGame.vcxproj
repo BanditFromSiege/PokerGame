@@ -136,6 +136,12 @@
     <ClCompile Include="Game_Logic\Table.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Game_Logic\Pot.cpp" />
+    <ClCompile Include="Render_Logic\Render_models\Card_render.cpp" />
+    <ClCompile Include="Render_Logic\Render_models\Player_render.cpp" />
+    <ClCompile Include="Render_Logic\Render_models\Showdown_render.cpp" />
+    <ClCompile Include="Render_Logic\Render_models\Table_render.cpp" />
+    <ClCompile Include="Render_Logic\Texture_manager.cpp" />
+    <ClCompile Include="Render_Logic\Render_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card_Logic\Card.h" />
@@ -150,6 +156,12 @@
     <ClInclude Include="Game_Logic\Table.h" />
     <ClInclude Include="Game_Logic\Pot.h" />
     <ClInclude Include="Game_Logic\Tests.h" />
+    <ClInclude Include="Render_Logic\Render_models\Card_render.h" />
+    <ClInclude Include="Render_Logic\Render_models\Player_render.h" />
+    <ClInclude Include="Render_Logic\Render_models\Showdown_render.h" />
+    <ClInclude Include="Render_Logic\Render_models\Table_render.h" />
+    <ClInclude Include="Render_Logic\Texture_manager.h" />
+    <ClInclude Include="Render_Logic\Render_manager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

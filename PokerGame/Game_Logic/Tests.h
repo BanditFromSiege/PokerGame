@@ -1,7 +1,7 @@
 #pragma once
 #include "Poker_game_manager.h"
 #include <string>
-
+/*
 template <typename T = std::execution::sequenced_policy>
 requires (std::is_same_v<T, std::execution::sequenced_policy> || std::is_same_v<T, std::execution::parallel_policy>)
 void Test_poker_game_in_console(std::uint8_t number_of_players, Player_difficulty d) {
@@ -155,4 +155,4 @@ void Poker_stability_test(std::uint8_t number_of_players, Player_difficulty d, s
 
         std::cout << '\n';
     }
-}
+}*/

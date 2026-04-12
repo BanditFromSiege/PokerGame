@@ -23,6 +23,7 @@ public:
 	std::size_t get_bank_for_player(const Player& p) const noexcept;
 
 	std::vector<Pot>& get_pots() noexcept;
+	const std::vector<Pot>& get_const_pots() const noexcept;
 	std::size_t get_sum_of_bets_on_current_stage() const noexcept;
 
 	void set_current_bet(std::size_t bet) noexcept;

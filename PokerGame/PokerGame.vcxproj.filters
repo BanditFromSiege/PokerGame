@@ -30,6 +30,24 @@
     <ClCompile Include="Game_Logic\Poker_game_manager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Render_Logic\Texture_manager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_models\Player_render.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_models\Card_render.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_models\Table_render.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_models\Showdown_render.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_manager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card_Logic\Enums.h">
@@ -66,6 +84,24 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Game_Logic\Tests.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Texture_manager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_models\Player_render.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_models\Card_render.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_models\Table_render.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_models\Showdown_render.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_manager.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

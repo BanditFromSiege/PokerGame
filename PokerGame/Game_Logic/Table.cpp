@@ -38,6 +38,10 @@ std::vector<Pot>& Table::get_pots() noexcept {
 	return pots;
 }
 
+const std::vector<Pot>& Table::get_const_pots() const noexcept {
+	return pots;
+}
+
 std::size_t Table::get_sum_of_bets_on_current_stage() const noexcept {
 	return sum_of_bets_on_current_stage;
 }

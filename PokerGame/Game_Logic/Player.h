@@ -6,21 +6,23 @@ class Player final {
 private:
 	std::string name;
 
+	std::optional<Poker_combination> combination = std::nullopt;
+
+	const std::size_t initial_money = 0;
+
 	std::size_t money = 0;
 	std::size_t current_bet = 0;
 	std::size_t sum_of_bets = 0;
 	std::size_t current_big_blind = 0;
-
-	std::size_t last_bet = 0;
 	std::size_t bet_difference = 0;
 
 	std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> cards = {};
 
+	std::optional<Player_action> last_move = std::nullopt;
 	std::uint8_t id = 0;
 
 	Player_difficulty difficulty = Player_difficulty::Easy;
 	Player_status status = Player_status::Active;
-	Player_action last_move = Player_action::Fold;
 
 public:
 	inline static std::size_t count_of_big_blinds = 50;
@@ -29,22 +31,22 @@ public:
 	Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d);
 
 	std::string get_name() const noexcept;
-	std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> get_cards() const noexcept;
-	std::pair<Card, Card> get_pair_of_cards() const noexcept;
+
+	std::optional<Poker_combination> get_combination() const noexcept;
 
 	std::size_t get_money() const noexcept;
 	std::size_t get_current_bet() const noexcept;
-
 	std::size_t get_sum_of_bets() const noexcept;
-
-	Player_status get_player_status() const noexcept;
-	std::uint8_t get_id() const noexcept;
 	std::size_t get_current_big_blind() const noexcept;
-
-	std::size_t get_last_bet() const noexcept;
 	std::size_t get_bet_difference() const noexcept;
 
-	Player_action get_last_move() const noexcept;
+	std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> get_cards() const noexcept;
+	std::pair<Card, Card> get_pair_of_cards() const noexcept;
+
+	std::optional<Player_action> get_last_move() const noexcept;
+	std::uint8_t get_id() const noexcept;
+	
+	Player_status get_status() const noexcept;
 
 	bool is_active() const noexcept;
 	bool is_in_game() const noexcept;
@@ -52,15 +54,21 @@ public:
 
 	void check_money_enough() noexcept;
 
+	void set_combination(const std::vector<Card>& table_cards) noexcept;
+
 	void set_current_bet(std::size_t bet) noexcept;
 	void set_sum_of_bets(std::size_t bet) noexcept;
+	
 	void set_cards(Card c1, Card c2) noexcept;
+	void set_last_move(std::optional<Player_action> new_move) noexcept;
 	void set_id(std::uint8_t index) noexcept;
-	void set_action(Player_action new_move) noexcept;
+
+	void set_status(Player_status new_status) noexcept;
 
 	void make_fold() noexcept;
 	void get_win(std::size_t share) noexcept;
 	void reset_for_new_hand() noexcept;
+	void reset_for_new_game() noexcept;
 
 	std::size_t make_bet_or_check(std::size_t bet) noexcept;
 

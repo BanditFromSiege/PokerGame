@@ -1,15 +1,11 @@
-#include "Game_Logic/Tests.h"
+#include "Render_Logic/Render_manager.h"
 #include <chrono>
 
 int main() {
-    auto t1 = std::chrono::high_resolution_clock::now();
+    std::mt19937_64 rng{ std::random_device{}() };
 
-    //Test_poker_game_in_console(8, Player_difficulty::Hard);
-    Poker_stability_test(8, Player_difficulty::Hard, 25);
+    auto manager = std::make_unique<Render_manager>(rng, std::pair{ 1920, 1080 }, 8);
+    manager->run();
 
-    auto t2 = std::chrono::high_resolution_clock::now();
-
-    std::cout << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count() << " seconds\n";
-    
     return 0;
 }

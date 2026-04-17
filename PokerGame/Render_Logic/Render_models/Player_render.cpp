@@ -4,7 +4,11 @@ Player_render::Player_render(
     tgui::Gui& gui,
     const Player& player,
     std::pair<std::uint16_t, std::uint16_t> coords
-) noexcept : player(player), card1(gui), card2(gui)
+) noexcept
+    : gui(gui)
+    , player(player)
+    , card1(gui)
+    , card2(gui)
 {
     current_player_arrow = tgui::Picture::create();
     current_player_arrow->getRenderer()->setTexture(Texture_manager::get_instance().get_current_player_arrow_texture());
@@ -45,7 +49,7 @@ Player_render::Player_render(
 
     dealer_button = tgui::Picture::create();
     dealer_button->getRenderer()->setTexture(Texture_manager::get_instance().get_dealer_button_texture());
-    dealer_button->setPosition(coords.first, coords.second + 20);
+    dealer_button->setPosition(coords.first + 120, coords.second + 20);
     dealer_button->setVisible(false);
     
     gui.add(current_player_arrow);
@@ -89,14 +93,18 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
 
     if (player.get_id() == dealer_player_id) {
         dealer_button->setVisible(true);
+        is_has_dealer_button = true;
     } else {
         dealer_button->setVisible(false);
+        is_has_dealer_button = false;
     }
 
     if (current_player_id && player.get_id() == *current_player_id) {
         current_player_arrow->setVisible(true);
+        is_has_current_player_arrow = true;
     } else {
         current_player_arrow->setVisible(false);
+        is_has_current_player_arrow = false;
     }
 
     if (auto opt_comb = player.get_combination(); opt_comb && (player.is_active() || player.is_all_in())) {
@@ -122,27 +130,51 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
     }
 }
 
-void Player_render::hide_player() noexcept {
-    card1.set_back_card();
-    card1.set_visible(false);
+void Player_render::set_visible(bool flag) noexcept {
+    if (!flag) {
+        card1.set_visible(false);
+        card2.set_visible(false);
 
-    card2.set_back_card();
-    card2.set_visible(false);
+        name_label->setVisible(false);
+        money_label->setVisible(false);
 
-    name_label->setVisible(false);
-    money_label->setVisible(false);
+        bet_label->setVisible(false);
+        player_action_label->setVisible(false);
+        combination_label->setVisible(false);
 
-    bet_label->setVisible(false);
-    player_action_label->setVisible(false);
-    combination_label->setVisible(false);
+        dealer_button->setVisible(false);
+        current_player_arrow->setVisible(false);
+    } else {
+        if (!player.is_in_game()) {
+            card1.set_back_card();
+            card2.set_back_card();
+        } else {
+            bet_label->setVisible(player.get_current_bet() != 0);
+            player_action_label->setVisible(player.get_last_move().has_value());
+            combination_label->setVisible(player.get_combination().has_value());
+        }
 
-    dealer_button->setVisible(false);
-    current_player_arrow->setVisible(false);
+        card1.set_visible(true);
+        card2.set_visible(true);
+
+        name_label->setVisible(true);
+        money_label->setVisible(true);
+
+        dealer_button->setVisible(is_has_dealer_button);
+        current_player_arrow->setVisible(is_has_current_player_arrow);
+    }
 }
 
-void Player_render::unhide_player() noexcept {
-    card1.set_visible(true);
-    card2.set_visible(true);
-    name_label->setVisible(true);
-    money_label->setVisible(true);
+void Player_render::remove_from_gui() noexcept {
+    card1.remove_from_gui();
+    card2.remove_from_gui();
+
+    gui.remove(name_label);
+    gui.remove(money_label);
+    gui.remove(bet_label);
+    gui.remove(player_action_label);
+    gui.remove(combination_label);
+
+    gui.remove(dealer_button);
+    gui.remove(current_player_arrow);
 }

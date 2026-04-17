@@ -2,10 +2,8 @@
 #include <chrono>
 
 int main() {
-    std::mt19937_64 rng{ std::random_device{}() };
-
-    auto manager = std::make_unique<Render_manager>(rng, std::pair{ 1920, 1080 }, 8);
+    auto manager = std::make_unique<Render_manager>(std::pair{ 1920, 1080 });
     manager->run();
-
+    
     return 0;
 }

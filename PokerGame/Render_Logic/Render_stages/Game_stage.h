@@ -1,0 +1,93 @@
+#pragma once
+#include "../Enums.h"
+#include "../Render_models/Showdown_render.h"
+#include <numbers>
+
+class Game_stage final {
+private:
+	tgui::Gui& gui;
+
+	Render_stages& current_stage;
+	Render_color& current_color;
+	Player_difficulty& current_diff;
+
+	bool& execution_mode_sequenced;
+	bool& create_new_game;
+	bool& current_game_is_running;
+
+	std::uint8_t& selected_players;
+	std::mt19937_64& rng;
+
+	Table table;
+
+	std::vector<Player> players{};
+	std::vector<Player_render> players_render{};
+
+	std::shared_ptr<tgui::Label> paused_label = nullptr;
+	std::shared_ptr<tgui::Label> round_label = nullptr;
+
+	std::shared_ptr<tgui::Label> win_label = nullptr;
+	std::shared_ptr<tgui::Button> win_button_yes = nullptr;
+	std::shared_ptr<tgui::Button> win_button_no = nullptr;
+
+	std::shared_ptr<tgui::Button> menu_button = nullptr;
+	std::shared_ptr<tgui::Button> pause_button = nullptr;
+
+	std::unique_ptr<Poker_game_manager> ptr_manager = nullptr;
+	std::unique_ptr<Table_render> ptr_table_render = nullptr;
+	std::unique_ptr<Showdown_render> ptr_showdown_render = nullptr;
+
+	sf::Clock clock;
+
+	Probability_evaluator<std::execution::sequenced_policy> eval_seq;
+	Probability_evaluator<std::execution::parallel_policy> eval_par;
+
+	float delay = 1.f;
+
+	std::pair<std::uint16_t, std::uint16_t> coords;
+
+	std::uint16_t centerX;
+	std::uint16_t centerY;
+
+	bool current_execution_mode_sequenced = true;
+	bool paused = false;
+
+	std::uint8_t dealer_id = 0;
+
+	void create_players() noexcept;
+
+	void reset_game() noexcept;
+
+	std::shared_ptr<tgui::Label> make_label(
+		std::pair<std::uint16_t, std::uint16_t> coords,
+		std::uint8_t text_size,
+		tgui::Color text_color,
+		const std::string& text
+	) noexcept;
+
+	std::shared_ptr<tgui::Button> make_button(
+		std::pair<std::uint16_t, std::uint16_t> coords,
+		std::uint8_t text_size,
+		const std::string& text,
+		std::function<void()> func
+	) noexcept;
+
+public:
+	Game_stage(
+		tgui::Gui& gui,
+		Render_stages& stage,
+		Render_color& color,
+		Player_difficulty& diff,
+		bool& execution_mode_sequenced,
+		bool& new_game,
+		bool& game_is_running,
+		std::uint8_t& number_of_players,
+		std::mt19937_64& rng,
+		std::pair<std::uint16_t, std::uint16_t> coords
+	) noexcept;
+
+	void input(const std::optional<sf::Event> event) noexcept;
+	void update() noexcept;
+
+	void set_visible(bool flag) noexcept;
+};

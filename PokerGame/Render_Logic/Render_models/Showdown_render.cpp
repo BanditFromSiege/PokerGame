@@ -3,8 +3,13 @@
 Showdown_render::Showdown_render(
 	tgui::Gui& gui,
 	const std::vector<Player>& players,
+	const std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>>& winners_and_rewards,
 	std::pair<std::uint16_t, std::uint16_t> coords
-) noexcept : players(players) {
+) noexcept
+	: gui(gui)
+	, players(players)
+	, winners_and_rewards(winners_and_rewards)
+{
 	for (std::size_t i = 0; auto& label : winners_and_rewards_label) {
 		label = tgui::Label::create();
 		label->setTextSize(20);
@@ -18,9 +23,7 @@ Showdown_render::Showdown_render(
 	}
 }
 
-void Showdown_render::update_showdown(
-	const std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>>& winners_and_rewards
-) noexcept {
+void Showdown_render::update_showdown() noexcept {
 	std::size_t i = 0;
 
 	for (; auto& [money, ids] : winners_and_rewards) {
@@ -52,9 +55,21 @@ void Showdown_render::update_showdown(
 	}
 }
 
-void Showdown_render::hide_showdown() noexcept {
+void Showdown_render::set_visible(bool flag) noexcept {
+	if (!flag) {
+		for (auto& label : winners_and_rewards_label) {
+			label->setVisible(false);
+		}
+	}
+	else {
+		for (std::size_t i = 0; i < winners_and_rewards.size(); ++i) {
+			winners_and_rewards_label[i]->setVisible(true);
+		}
+	}
+}
+
+void Showdown_render::remove_from_gui() noexcept {
 	for (auto& label : winners_and_rewards_label) {
-		label->setText("");
-		label->setVisible(false);
+		gui.remove(label);
 	}
 }

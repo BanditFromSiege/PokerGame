@@ -4,7 +4,11 @@ Table_render::Table_render(
 	tgui::Gui& gui,
 	const Table& table,
 	std::pair<std::uint16_t, std::uint16_t> coords
-) noexcept : table(table), table_cards{ (gui), (gui), (gui), (gui), (gui) } {
+) noexcept
+	: table(table)
+	, gui(gui)
+	, table_cards{ (gui), (gui), (gui), (gui), (gui) }
+{
 	for (std::size_t i = 0; auto& card : table_cards) {
 		card.set_position({coords.first + i * 75, coords.second});
 		++i;
@@ -59,13 +63,37 @@ void Table_render::update_table() noexcept {
 	}
 }
 
-void Table_render::hide_table() noexcept {
-	for (auto& card : table_cards) {
-		card.set_visible(false);
+void Table_render::set_visible(bool flag) noexcept {
+	if (!flag) {
+		for (auto& label : pots_label) {
+			label->setVisible(false);
+		}
+
+		for (auto& card : table_cards) {
+			card.set_visible(false);
+		}
+	}
+	else {
+		const auto& pots = table.get_const_pots();
+
+		for (std::size_t i = 0; i < pots.size(); ++i) {
+			pots_label[i]->setVisible(true);
+		}
+
+		const auto& cards = table.get_cards();
+
+		for (std::size_t i = 0; i < cards.size(); ++i) {
+			table_cards[i].set_visible(true);
+		}
+	}
+}
+
+void Table_render::remove_from_gui() noexcept {
+	for (auto& label : pots_label) {
+		gui.remove(label);
 	}
 
-	for (auto& pot : pots_label) {
-		pot->setText("");
-		pot->setVisible(false);
+	for (auto& card : table_cards) {
+		card.remove_from_gui();
 	}
 }

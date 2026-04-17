@@ -49,7 +49,7 @@ Player_render::Player_render(
 
     dealer_button = tgui::Picture::create();
     dealer_button->getRenderer()->setTexture(Texture_manager::get_instance().get_dealer_button_texture());
-    dealer_button->setPosition(coords.first + 120, coords.second + 20);
+    dealer_button->setPosition(coords.first + 10, coords.second + 160);
     dealer_button->setVisible(false);
     
     gui.add(current_player_arrow);

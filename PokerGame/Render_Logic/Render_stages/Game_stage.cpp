@@ -21,31 +21,28 @@ void Game_stage::create_players() noexcept {
 
     players_render.clear();
 
-    const float centerX = coords.first / 2.f;
-    const float centerY = coords.second / 2.f;
+    const float radius_x = 600.f;
+    const float radius_y = 280.f;
 
-    const float radiusX = 600.f;
-    const float radiusY = 280.f;
+    const float player_width = 150.f;
+    const float player_height = 320.f;
 
-    const float playerWidth = 150.f;
-    const float playerHeight = 320.f;
+    const std::size_t player_count = players.size();
 
-    const std::size_t playerCount = players.size();
+    float angle_offset = std::numbers::pi_v<float> / 2.f;
 
-    float angleOffset = std::numbers::pi_v<float> / 2.f;
-
-    if (playerCount % 2 != 0) {
-        angleOffset += std::numbers::pi_v<float> / playerCount;
+    if (player_count % 2 != 0) {
+        angle_offset += std::numbers::pi_v<float> / player_count;
     }
 
-    for (std::size_t i = 0; i < playerCount; ++i) {
-        float angle = (2 * std::numbers::pi_v<float> *i) / playerCount + angleOffset;
+    for (std::size_t i = 0; i < player_count; ++i) {
+        float angle = (2 * std::numbers::pi_v<float> *i) / player_count + angle_offset;
 
-        float x = centerX + std::cos(angle) * radiusX;
-        float y = centerY + std::sin(angle) * radiusY;
+        float x = center_x + std::cos(angle) * radius_x;
+        float y = center_y + std::sin(angle) * radius_y;
 
-        x -= playerWidth / 2.f;
-        y -= playerHeight / 2.f;
+        x -= player_width / 2.f;
+        y -= player_height / 2.f;
 
         players_render.emplace_back(gui, players[i], std::pair{
             static_cast<std::uint16_t>(x),
@@ -135,19 +132,19 @@ Game_stage::Game_stage(
     , rng(rng)
     , coords(coords)
 {
-    centerX = coords.first / 2.f;
-    centerY = coords.second / 2.f;
+    center_x = coords.first / 2.f;
+    center_y = coords.second / 2.f;
 
-    paused_label = make_label({ centerX - 100, centerY - 180 }, 56, tgui::Color::Red, "Paused");
+    paused_label = make_label({ center_x - 100, center_y - 170 }, 56, tgui::Color::Red, "Paused");
     paused_label->setVisible(false);
 
-    round_label = make_label({ 5, 5 }, 56, tgui::Color::White, "");
+    round_label = make_label({ 5, 5 }, 56, tgui::Color::White, "Round: 1");
     round_label->setVisible(true);
 
-    win_label = make_label({ centerX - 250, centerY - 150 }, 64, tgui::Color::White, "");
+    win_label = make_label({ center_x - 250, center_y - 150 }, 64, tgui::Color::White, "");
     win_label->setVisible(false);
 
-    win_button_yes = make_button({ centerX - 200, centerY + 20 }, 64, "Yes",
+    win_button_yes = make_button({ center_x - 200, center_y + 20 }, 64, "Yes",
         [this](){
             current_game_is_running = true;
             reset_game();
@@ -155,7 +152,7 @@ Game_stage::Game_stage(
     );
     win_button_yes->setVisible(false);
 
-    win_button_no = make_button({ centerX, centerY + 20 }, 64, "No",
+    win_button_no = make_button({ center_x, center_y + 20 }, 64, "No",
         [this]() {
             current_game_is_running = false;
             current_stage = Render_stages::Menu;
@@ -223,9 +220,9 @@ void Game_stage::update() noexcept {
         create_players();
 
         ptr_manager = std::make_unique<Poker_game_manager>(table, rng, players, eval_seq, eval_par);
-        ptr_table_render = std::make_unique<Table_render>(gui, table, std::pair{ centerX - 200, centerY - 100 });
+        ptr_table_render = std::make_unique<Table_render>(gui, table, std::pair{ center_x - 200, center_y - 100 });
         ptr_showdown_render = std::make_unique<Showdown_render>(
-            gui, players, ptr_manager->get_winners_and_rewards(), std::pair{ centerX - 250, centerY + 80 }
+            gui, players, ptr_manager->get_winners_and_rewards(), std::pair{ 1300, 890 }
         );
 
         if (execution_mode_sequenced) {

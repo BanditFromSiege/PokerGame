@@ -45,6 +45,7 @@ private:
 	void prepare_to_Flop() noexcept;
 	void prepare_to_Turn() noexcept;
 	void prepare_to_River() noexcept;
+	void prepare_to_Showdown() noexcept;
 
 	void add_bets_to_pots() noexcept;
 

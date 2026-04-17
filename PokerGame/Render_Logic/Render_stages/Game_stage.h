@@ -46,8 +46,8 @@ private:
 
 	std::pair<std::uint16_t, std::uint16_t> coords;
 
-	std::uint16_t centerX;
-	std::uint16_t centerY;
+	std::uint16_t center_x;
+	std::uint16_t center_y;
 
 	bool current_execution_mode_sequenced = true;
 	bool paused = false;

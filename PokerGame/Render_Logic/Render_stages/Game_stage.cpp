@@ -171,6 +171,10 @@ Game_stage::Game_stage(
         [this]() {
             paused = !paused;
             paused_label->setVisible(paused);
+
+            if (!paused) {
+                clock.restart();
+            }
         }
     );
 
@@ -184,12 +188,14 @@ Game_stage::Game_stage(
 }
 
 void Game_stage::input(const std::optional<sf::Event> event) noexcept {
-    if (event->is<sf::Event::FocusLost>()) {
-        paused = true;
-        paused_label->setVisible(paused);
-    }
-    if (event->is<sf::Event::FocusGained>()) {
-        clock.restart();
+    if (current_game_is_running) {
+        if (event->is<sf::Event::FocusLost>()) {
+            paused = true;
+            paused_label->setVisible(paused);
+        }
+        if (event->is<sf::Event::FocusGained>()) {
+            clock.restart();
+        }
     }
 }
 

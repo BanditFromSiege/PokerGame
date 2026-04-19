@@ -6,7 +6,6 @@ enum class Render_stages : std::uint8_t {
     Preparing,
     Settings,
     Game,
-    Menugame,
     Exit
 };
 

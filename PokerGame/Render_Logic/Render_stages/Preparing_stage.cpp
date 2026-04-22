@@ -130,19 +130,19 @@ Preparing_stage::Preparing_stage(
 
 	choice_poker_mode_label = make_label({ 900, 300 }, 48, tgui::Color::White, "Select type of Poker");
 
-	not_limit_texas_holdem_radio_button = make_radio_button({ 900, 400 }, 36, tgui::Color::White, "Not limit Texas Holdem",
+	no_limit_texas_holdem_radio_button = make_radio_button({ 900, 400 }, 36, tgui::Color::White, "No-Limit Texas Hold'em",
 		[](){}
 	);
 
-	not_limit_texas_holdem_radio_button->setChecked(true);
-	gui.add(not_limit_texas_holdem_radio_button);
+	no_limit_texas_holdem_radio_button->setChecked(true);
+	gui.add(no_limit_texas_holdem_radio_button);
 
 	choice_game_mode_label = make_label({ 900, 450 }, 48, tgui::Color::White, "Select game mode");
 
-	observer_mode_radio_button = make_radio_button({ 900, 550 }, 36, tgui::Color::White, "Observer", [](){});
+	spectator_mode_radio_button = make_radio_button({ 900, 550 }, 36, tgui::Color::White, "Spectator", [](){});
 
-	observer_mode_radio_button->setChecked(true);
-	gui.add(observer_mode_radio_button);
+	spectator_mode_radio_button->setChecked(true);
+	gui.add(spectator_mode_radio_button);
 
 	create_game_button = make_button({ 100, 800 }, 48, "Create game",
 		[this]() {
@@ -153,7 +153,7 @@ Preparing_stage::Preparing_stage(
 		}
 	);
 
-	back_button = make_button({ 100, 900 }, 48, "Return to menu",
+	back_button = make_button({ 100, 900 }, 48, "Back to menu",
 		[this]() {
 			current_stage = Render_stages::Menu;
 		}
@@ -187,10 +187,10 @@ void Preparing_stage::set_visible(bool flag) noexcept {
 	hard_diff->setVisible(flag);
 
 	choice_poker_mode_label->setVisible(flag);
-	not_limit_texas_holdem_radio_button->setVisible(flag);
+	no_limit_texas_holdem_radio_button->setVisible(flag);
 
 	choice_game_mode_label->setVisible(flag);
-	observer_mode_radio_button->setVisible(flag);
+	spectator_mode_radio_button->setVisible(flag);
 
 	back_button->setVisible(flag);
 	create_game_button->setVisible(flag);

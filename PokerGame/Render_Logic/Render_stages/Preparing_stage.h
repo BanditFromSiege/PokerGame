@@ -25,10 +25,10 @@ private:
     std::shared_ptr<tgui::RadioButton>  hard_diff = nullptr;
 
     std::shared_ptr<tgui::Label> choice_poker_mode_label = nullptr;
-    std::shared_ptr<tgui::RadioButton> not_limit_texas_holdem_radio_button = nullptr;
+    std::shared_ptr<tgui::RadioButton> no_limit_texas_holdem_radio_button = nullptr;
 
     std::shared_ptr<tgui::Label> choice_game_mode_label = nullptr;
-    std::shared_ptr<tgui::RadioButton> observer_mode_radio_button = nullptr;
+    std::shared_ptr<tgui::RadioButton> spectator_mode_radio_button = nullptr;
 
     std::shared_ptr<tgui::Button> back_button = nullptr;
     std::shared_ptr<tgui::Button> create_game_button = nullptr;

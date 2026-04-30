@@ -65,6 +65,13 @@ void Game_stage::reset_game() noexcept {
     menu_button->setVisible(true);
     pause_button->setVisible(true);
 
+    delay_label->setVisible(true);
+    delay_slider->setVisible(true);
+
+    delay = default_delay;
+    delay_label->setText(std::format("{:.1f}", delay));
+    delay_slider->setValue(delay);
+
     for (auto& pr : players_render) {
         pr.set_visible(true);
     }
@@ -185,6 +192,24 @@ Game_stage::Game_stage(
 
     menu_button->setWidth(maxWidth);
     pause_button->setWidth(maxWidth);
+
+    delay_label = make_label({ center_x - 300, 975 }, 36, tgui::Color::White, std::format("{:.1f}", delay));
+
+    delay_slider = tgui::Slider::create();
+    delay_slider->setPosition({ center_x - 200, 980 });
+    delay_slider->setSize({ 400, 30 });
+
+    delay_slider->setMinimum(0.1f);
+    delay_slider->setMaximum(2.0f);
+    delay_slider->setStep(0.1f);
+    delay_slider->setValue(delay);
+
+    delay_slider->onValueChange([this](float value) {
+        delay = value;
+        delay_label->setText(std::format("{:.1f}", value));
+    });
+
+    gui.add(delay_slider);
 }
 
 void Game_stage::input(const std::optional<sf::Event> event) noexcept {
@@ -226,9 +251,9 @@ void Game_stage::update() noexcept {
         create_players();
 
         ptr_manager = std::make_unique<Poker_game_manager>(table, rng, players, eval_seq, eval_par);
-        ptr_table_render = std::make_unique<Table_render>(gui, table, std::pair{ center_x - 200, center_y - 100 });
+        ptr_table_render = std::make_unique<Table_render>(gui, table, std::pair{ center_x - 190, center_y - 100 });
         ptr_showdown_render = std::make_unique<Showdown_render>(
-            gui, players, ptr_manager->get_winners_and_rewards(), std::pair{ 1300, 890 }
+            gui, players, ptr_manager->get_winners_and_rewards(), std::pair{ 1300, 20 }
         );
 
         if (execution_mode_sequenced) {
@@ -243,6 +268,10 @@ void Game_stage::update() noexcept {
         create_new_game = false;
         paused = false;
         paused_label->setVisible(paused);
+
+        delay = default_delay;
+        delay_label->setText(std::format("{:.1f}", delay));
+        delay_slider->setValue(delay);
 
         clock.restart();
     }
@@ -287,6 +316,9 @@ void Game_stage::update() noexcept {
                 menu_button->setVisible(false);
                 pause_button->setVisible(false);
 
+                delay_label->setVisible(false);
+                delay_slider->setVisible(false);
+
                 current_game_is_running = false;
             }
         }
@@ -315,6 +347,9 @@ void Game_stage::set_visible(bool flag) noexcept {
 
     menu_button->setVisible(flag && current_game_is_running);
     pause_button->setVisible(flag && current_game_is_running);
+
+    delay_label->setVisible(flag && current_game_is_running);
+    delay_slider->setVisible(flag && current_game_is_running);
 
     clock.restart();
 }

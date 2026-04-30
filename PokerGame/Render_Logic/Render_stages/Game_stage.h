@@ -2,6 +2,7 @@
 #include "../Enums.h"
 #include "../Render_models/Showdown_render.h"
 #include <numbers>
+#include <format>
 
 class Game_stage final {
 private:
@@ -33,6 +34,9 @@ private:
 	std::shared_ptr<tgui::Button> menu_button = nullptr;
 	std::shared_ptr<tgui::Button> pause_button = nullptr;
 
+	std::shared_ptr<tgui::Label> delay_label = nullptr;
+	std::shared_ptr<tgui::Slider> delay_slider = nullptr;
+
 	std::unique_ptr<Poker_game_manager> ptr_manager = nullptr;
 	std::unique_ptr<Table_render> ptr_table_render = nullptr;
 	std::unique_ptr<Showdown_render> ptr_showdown_render = nullptr;
@@ -42,7 +46,8 @@ private:
 	Probability_evaluator<std::execution::sequenced_policy> eval_seq;
 	Probability_evaluator<std::execution::parallel_policy> eval_par;
 
-	float delay = 1.f;
+	const float default_delay = 1.0f;
+	float delay = default_delay;
 
 	std::pair<std::uint16_t, std::uint16_t> coords;
 

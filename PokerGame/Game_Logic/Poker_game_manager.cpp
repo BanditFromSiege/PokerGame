@@ -157,6 +157,13 @@ void Poker_game_manager::prepare_to_River() noexcept {
 	}
 }
 
+void Poker_game_manager::prepare_to_Showdown() noexcept {
+	for (auto& p : players) {
+		p.set_current_bet(0);
+		p.set_last_move(std::nullopt);
+	}
+}
+
 void Poker_game_manager::add_bets_to_pots() noexcept {
 	std::vector<std::pair<std::uint8_t, std::size_t>> contribs;
 
@@ -304,6 +311,8 @@ void Poker_game_manager::perform_stage() noexcept {
 	else if (stage == Poker_stage::Showdown) {
 		current_player_id = std::nullopt;
 
+		prepare_to_Showdown();
+
 		perform_showdown_step();
 	}
 	else if (stage == Poker_stage::After_showdown) {
@@ -332,10 +341,6 @@ void Poker_game_manager::perform_player_step() noexcept {
 	if (current_player_index_id < players_ids_in_game.size()) {
 		Player& p = players[players_index[current_player_index_id]];
 
-		if (!p.is_active()) {
-			throw std::runtime_error("error");
-		}
-		
 		current_player_id = p.get_id();
 
 		std::pair<Player_action, std::size_t> pair{};
@@ -404,6 +409,8 @@ void Poker_game_manager::perform_player_step() noexcept {
 			pots.emplace_back(std::vector{ p_it->get_id() }, total_bank);
 
 			winners_and_rewards.push_back({ total_bank, std::vector{ p_it->get_id() }});
+
+			prepare_to_Showdown();
 
 			stage = Poker_stage::After_showdown;
 
@@ -526,7 +533,12 @@ Poker_game_manager::Poker_game_manager(
 	std::vector<Player>& players,
 	Probability_evaluator<std::execution::sequenced_policy>& eval_seq,
 	Probability_evaluator<std::execution::parallel_policy>& eval_par
-) noexcept : table(table), players(players), rng(rng), evaluator_sequenced(eval_seq), evaluator_parallel(eval_par)
+) noexcept
+	: table(table)
+	, rng(rng)
+	, players(players)
+	, evaluator_sequenced(eval_seq)
+	, evaluator_parallel(eval_par)
 {
 	deck = *Poker_deck::create_poker_deck();
 	reset_for_new_game();

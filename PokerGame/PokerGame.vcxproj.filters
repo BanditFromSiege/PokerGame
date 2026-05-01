@@ -48,6 +48,18 @@
     <ClCompile Include="Render_Logic\Render_manager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Render_Logic\Render_stages\Game_stage.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_stages\Menu_stage.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_stages\Settings_stage.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Render_Logic\Render_stages\Preparing_stage.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card_Logic\Enums.h">
@@ -102,6 +114,21 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Render_Logic\Render_manager.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_stages\Game_stage.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Enums.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_stages\Menu_stage.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_stages\Settings_stage.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Render_Logic\Render_stages\Preparing_stage.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

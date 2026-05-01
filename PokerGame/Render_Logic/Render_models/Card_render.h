@@ -3,6 +3,8 @@
 
 class Card_render final {
 private:
+	tgui::Gui& gui;
+
 	std::shared_ptr<tgui::Picture> picture = nullptr;
 
 public:
@@ -12,4 +14,6 @@ public:
 	void set_visible(bool flag) noexcept;
 	void set_new_card(Card c) noexcept;
 	void set_back_card() noexcept;
+
+	void remove_from_gui() noexcept;
 };

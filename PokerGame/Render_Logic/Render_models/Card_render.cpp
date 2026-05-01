@@ -1,6 +1,6 @@
 #include "Card_render.h"
 
-Card_render::Card_render(tgui::Gui& gui) noexcept {
+Card_render::Card_render(tgui::Gui& gui) noexcept : gui(gui) {
 	picture = tgui::Picture::create();
 	picture->setScale(0.5);
 
@@ -24,4 +24,8 @@ void Card_render::set_new_card(Card c) noexcept {
 
 void Card_render::set_back_card() noexcept {
 	picture->getRenderer()->setTexture(Texture_manager::get_instance().get_back_card_texture());
+}
+
+void Card_render::remove_from_gui() noexcept {
+	gui.remove(picture);
 }

@@ -39,7 +39,8 @@ private:
 			auto c = create_combination_by_cards(combinations[i]);
 			if (c) {
 				poker_combinations[i] = *c;
-			} else {
+			}
+			else {
 				return std::nullopt;
 			}
 		}
@@ -81,7 +82,8 @@ private:
 			auto c = find_best_six_cards(combinations[i]);
 			if (c) {
 				poker_combinations[i] = *c;
-			} else {
+			}
+			else {
 				return std::nullopt;
 			}
 		}
@@ -209,16 +211,19 @@ public:
 
 			if (count == 2) {
 				++pair;
-			} else if (count == 3) {
+			}
+			else if (count == 3) {
 				++set;
-			} else if (count == 4) {
+			}
+			else if (count == 4) {
 				++care;
 			}
 		}
 
 		if (set == 1 && pair == 1) {
 			++full_house;
-		} else if (pair == 2) {
+		}
+		else if (pair == 2) {
 			++two_pair;
 		}
 
@@ -327,7 +332,8 @@ public:
 
 		if (!ace_low) {
 			std::reverse(kickers.begin(), kickers.end());
-		} else {
+		}
+		else {
 			std::reverse(kickers.begin(), std::prev(kickers.end()));
 		}
 

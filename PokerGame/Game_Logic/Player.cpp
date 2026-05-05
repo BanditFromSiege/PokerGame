@@ -35,10 +35,6 @@ std::size_t Player::get_current_big_blind() const noexcept {
 	return current_big_blind;
 }
 
-std::size_t Player::get_bet_difference() const noexcept {
-	return bet_difference;
-}
-
 std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> Player::get_cards() const noexcept {
 	return cards;
 }
@@ -53,6 +49,10 @@ std::optional<Player_action> Player::get_last_move() const noexcept {
 
 std::uint8_t Player::get_id() const noexcept {
 	return id;
+}
+
+Player_difficulty Player::get_difficulty() const noexcept {
+	return difficulty;
 }
 
 Player_status Player::get_status() const noexcept {
@@ -122,7 +122,6 @@ void Player::get_win(std::size_t share) noexcept {
 void Player::reset_for_new_hand() noexcept {
 	current_bet = 0;
 	sum_of_bets = 0;
-	bet_difference = 0;
 	last_move = std::nullopt;
 }
 
@@ -138,14 +137,13 @@ std::size_t Player::make_bet_or_check(std::size_t bet) noexcept {
 		diff = money;
 		status = Player_status::All_in;
 		current_bet += diff;
-	} else {
+	}
+	else {
 		current_bet = bet;
 	}
 
 	money -= diff;
 	sum_of_bets += diff;
-
-	bet_difference = diff;
 	
 	return diff;
 }

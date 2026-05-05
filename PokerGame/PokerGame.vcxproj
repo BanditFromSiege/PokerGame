@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game_Logic\Logger.cpp" />
     <ClCompile Include="Game_Logic\Player.cpp" />
     <ClCompile Include="Game_Logic\Poker_game_manager.cpp" />
     <ClCompile Include="Game_Logic\Table.cpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="Card_Logic\Tests.h" />
     <ClInclude Include="Card_Logic\Enums.h" />
     <ClInclude Include="Game_Logic\Enums.h" />
+    <ClInclude Include="Game_Logic\Logger.h" />
     <ClInclude Include="Game_Logic\Player.h" />
     <ClInclude Include="Game_Logic\Poker_game_manager.h" />
     <ClInclude Include="Game_Logic\Table.h" />

@@ -2,13 +2,11 @@
 
 Showdown_render::Showdown_render(
 	tgui::Gui& gui,
-	const std::vector<Player>& players,
-	const std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>>& winners_and_rewards,
+	const Poker_game_manager& manager,
 	std::pair<std::uint16_t, std::uint16_t> coords
 ) noexcept
 	: gui(gui)
-	, players(players)
-	, winners_and_rewards(winners_and_rewards)
+	, c_ref_manager(manager)
 {
 	for (std::size_t i = 0; auto& label : winners_and_rewards_label) {
 		label = tgui::Label::create();
@@ -24,23 +22,26 @@ Showdown_render::Showdown_render(
 }
 
 void Showdown_render::update_showdown() noexcept {
+	const auto& c_ref_winners_and_rewards = c_ref_manager.get_winners_and_rewards();
+	const auto& c_ref_players = c_ref_manager.get_players();
+
 	std::size_t i = 0;
 
-	for (; auto& [money, ids] : winners_and_rewards) {
+	for (; const auto& [money, ids] : c_ref_winners_and_rewards) {
 		std::string text;
-		text += "Pot " + std::to_string(i + 1) + ": ";
-		text += std::to_string(money) + ", Winners: ";
+		text += "Pot " + std::to_string(i + 1);
+		text += " [" + std::to_string(money) + "] Winners: ";
 
 		for (std::uint8_t id : ids) {
-			text += players[id].get_name() + ' ';
+			text += c_ref_players[id].get_name() + ", ";
 		}
+		text.pop_back();
+		text.pop_back();
 
-		if (auto opt_comb = players[ids.front()].get_combination(); opt_comb) {
-			text += ": Combination: ";
-			std::stringstream ss;
-			ss << players[ids.front()].get_combination()->get_power();
-
-			text += ss.str();
+		if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
+			text += " (Combination - ";
+			text += combination_to_c_str(c_ref_players[ids.front()].get_combination()->get_power());
+			text += ')';
 
 			winners_and_rewards_label[i]->setVisible(true);
 			winners_and_rewards_label[i]->setText(std::move(text));
@@ -56,13 +57,15 @@ void Showdown_render::update_showdown() noexcept {
 }
 
 void Showdown_render::set_visible(bool flag) noexcept {
+	const auto& c_ref_winners_and_rewards = c_ref_manager.get_winners_and_rewards();
+
 	if (!flag) {
 		for (auto& label : winners_and_rewards_label) {
 			label->setVisible(false);
 		}
 	}
 	else {
-		for (std::size_t i = 0; i < winners_and_rewards.size(); ++i) {
+		for (std::size_t i = 0; i < c_ref_winners_and_rewards.size(); ++i) {
 			winners_and_rewards_label[i]->setVisible(true);
 		}
 	}

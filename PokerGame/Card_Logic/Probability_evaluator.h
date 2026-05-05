@@ -110,7 +110,8 @@ private:
 
 				if (opt) {
 					table_cards[table_cards_counter] = *opt;
-				} else {
+				}
+				else {
 					failed.store(true, std::memory_order_relaxed);
 					return;
 				}
@@ -139,7 +140,8 @@ private:
 
 						if (opt) {
 							opponents_cards[i][j] = *opt;
-						} else {
+						}
+						else {
 							failed.store(true, std::memory_order_relaxed);
 							return;
 						}
@@ -160,7 +162,8 @@ private:
 
 				if (opt) {
 					combinations[i + 1] = *opt;
-				} else {
+				}
+				else {
 					failed.store(true, std::memory_order_relaxed);
 					return;
 				}

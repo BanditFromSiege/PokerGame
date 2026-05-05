@@ -49,7 +49,8 @@ std::size_t Table::get_sum_of_bets_on_current_stage() const noexcept {
 void Table::set_current_bet(std::size_t bet) noexcept {
 	if (bet > current_bet) {
 		last_bet_diff = bet - current_bet;
-	} else {
+	}
+	else {
 		last_bet_diff = 0;
 	}
 	
@@ -67,23 +68,4 @@ void Table::clear() noexcept {
 	current_bet = 0;
 	last_bet_diff = 0;
 	sum_of_bets_on_current_stage = 0;
-}
-
-void Table::show_table() const noexcept {
-	std::cout << "Table cards: ";
-
-	for (Card c : table_cards) {
-		std::cout << c << ' ';
-	}
-	std::cout << '\n';
-
-	std::cout << "Table banks:\n";
-	for (const Pot& pot : pots) {
-		std::cout << pot.get_bank() << " Players_id: ";
-		for (auto id : pot.get_players_id()) {
-			std::cout << (int)id << ' ';
-		}
-		std::cout << '\n';
-	}
-	std::cout << '\n';
 }

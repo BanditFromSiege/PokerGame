@@ -14,7 +14,6 @@ private:
 	std::size_t current_bet = 0;
 	std::size_t sum_of_bets = 0;
 	std::size_t current_big_blind = 0;
-	std::size_t bet_difference = 0;
 
 	std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> cards = {};
 
@@ -31,21 +30,16 @@ public:
 	Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d);
 
 	std::string get_name() const noexcept;
-
 	std::optional<Poker_combination> get_combination() const noexcept;
-
 	std::size_t get_money() const noexcept;
 	std::size_t get_current_bet() const noexcept;
 	std::size_t get_sum_of_bets() const noexcept;
 	std::size_t get_current_big_blind() const noexcept;
-	std::size_t get_bet_difference() const noexcept;
-
 	std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> get_cards() const noexcept;
 	std::pair<Card, Card> get_pair_of_cards() const noexcept;
-
 	std::optional<Player_action> get_last_move() const noexcept;
 	std::uint8_t get_id() const noexcept;
-	
+	Player_difficulty get_difficulty() const noexcept;
 	Player_status get_status() const noexcept;
 
 	bool is_active() const noexcept;
@@ -55,18 +49,16 @@ public:
 	void check_money_enough() noexcept;
 
 	void set_combination(const std::vector<Card>& table_cards) noexcept;
-
 	void set_current_bet(std::size_t bet) noexcept;
 	void set_sum_of_bets(std::size_t bet) noexcept;
-	
 	void set_cards(Card c1, Card c2) noexcept;
 	void set_last_move(std::optional<Player_action> new_move) noexcept;
 	void set_id(std::uint8_t index) noexcept;
-
 	void set_status(Player_status new_status) noexcept;
 
 	void make_fold() noexcept;
 	void get_win(std::size_t share) noexcept;
+
 	void reset_for_new_hand() noexcept;
 	void reset_for_new_game() noexcept;
 
@@ -138,7 +130,8 @@ public:
 			if (begin_raise_bet) {
 				potential_bet += table_last_bet_diff;
 				begin_raise_bet = false;
-			} else {
+			}
+			else {
 				potential_bet += current_big_blind;
 			}
 			
@@ -154,15 +147,19 @@ public:
 		if (bet_for_call == 0) {
 			if (new_bet > 0) {
 				return { Player_action::Raise, new_bet + table_current_bet };
-			} else {
+			}
+			else {
 				return { Player_action::Check, 0 };
 			}
-		} else {
+		}
+		else {
 			if (new_bet > bet_for_call) {
 				return { Player_action::Raise, table_current_bet + (new_bet - bet_for_call) };
-			} else if (new_bet == bet_for_call) {
+			}
+			else if (new_bet == bet_for_call) {
 				return { Player_action::Call, table_current_bet };
-			} else {
+			}
+			else {
 				return { Player_action::Fold, 0 };
 			}
 		}

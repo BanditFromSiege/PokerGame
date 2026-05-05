@@ -58,6 +58,8 @@ void Game_stage::reset_game() noexcept {
 
     ptr_manager->reset_for_new_game();
 
+    ptr_logger->reset();
+
     win_label->setVisible(false);
     win_button_yes->setVisible(false);
     win_button_no->setVisible(false);
@@ -75,6 +77,8 @@ void Game_stage::reset_game() noexcept {
     for (auto& pr : players_render) {
         pr.set_visible(true);
     }
+
+    console_logger->setText("");
 
     paused = false;
     clock.restart();
@@ -139,10 +143,12 @@ Game_stage::Game_stage(
     , rng(rng)
     , coords(coords)
 {
+    file.open("poker_game_log.txt", std::ios::out | std::ios::app);
+    
     center_x = coords.first / 2.f;
     center_y = coords.second / 2.f;
 
-    paused_label = make_label({ center_x - 100, center_y - 170 }, 56, tgui::Color::Red, "Paused");
+    paused_label = make_label({ center_x - 100, center_y - 180 }, 56, tgui::Color::Red, "Paused");
     paused_label->setVisible(false);
 
     round_label = make_label({ 5, 5 }, 56, tgui::Color::White, "Round: 1");
@@ -210,6 +216,14 @@ Game_stage::Game_stage(
     });
 
     gui.add(delay_slider);
+
+    console_logger = tgui::TextArea::create();
+    console_logger->setSize({ 610, 180 });
+    console_logger->setPosition({ 20, 890 });
+    console_logger->setReadOnly(true);
+    console_logger->setTextSize(18);
+
+    gui.add(console_logger);
 }
 
 void Game_stage::input(const std::optional<sf::Event> event) noexcept {
@@ -229,7 +243,8 @@ void Game_stage::update() noexcept {
         if (ptr_manager) {
             if (execution_mode_sequenced) {
                 ptr_manager->set_evaluator_sequenced_policy();
-            } else {
+            }
+            else {
                 ptr_manager->set_evaluator_parallel_policy();
             }
         }
@@ -246,19 +261,19 @@ void Game_stage::update() noexcept {
             ptr_showdown_render->remove_from_gui();
         }
 
-        table.clear();
-
         create_players();
 
-        ptr_manager = std::make_unique<Poker_game_manager>(table, rng, players, eval_seq, eval_par);
-        ptr_table_render = std::make_unique<Table_render>(gui, table, std::pair{ center_x - 190, center_y - 100 });
-        ptr_showdown_render = std::make_unique<Showdown_render>(
-            gui, players, ptr_manager->get_winners_and_rewards(), std::pair{ 1300, 20 }
-        );
+        ptr_manager = std::make_unique<Poker_game_manager>(rng, players, eval_seq, eval_par);
+        ptr_table_render = std::make_unique<Table_render>(gui, *ptr_manager, std::pair{ center_x - 190, center_y - 100 });
+        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1300, 20 });
+        ptr_logger = std::make_unique<Logger>(*ptr_manager);
+
+        console_logger->setText("");
 
         if (execution_mode_sequenced) {
             ptr_manager->set_evaluator_sequenced_policy();
-        } else {
+        }
+        else {
             ptr_manager->set_evaluator_parallel_policy();
         }
 
@@ -281,6 +296,13 @@ void Game_stage::update() noexcept {
             clock.restart();
             ptr_manager->call_next_move();
 
+            auto str = ptr_logger->get_message();
+            if (!str.empty()) {
+                file << str;
+                file.flush();
+                console_logger->addText(std::move(str));
+            }
+
             if (ptr_manager->get_current_stage() == Poker_stage::Preflop) {
                 round_label->setText("Round: " + std::to_string(ptr_manager->get_number_of_rounds()));
                 dealer_id = ptr_manager->get_dealer_player_id();
@@ -301,13 +323,15 @@ void Game_stage::update() noexcept {
                 ptr_table_render->set_visible(false);
                 ptr_showdown_render->set_visible(false);
 
-                auto it = std::find_if(players.begin(), players.end(),
-                    [](const Player& p) {
-                        return p.get_money() != 0;
-                    }
-                );
+                auto opt_id = ptr_manager->get_winner_id();
 
-                win_label->setText("Winner: " + it->get_name() + "\nRestart the game ?");
+                if (!opt_id) {
+                    win_label->setText("Winner: ERROR\nRestart the game ?");
+                }
+                else {
+                    win_label->setText("Winner: " + players[*opt_id].get_name() + "\nRestart the game ?");
+                }
+
                 win_label->setVisible(true);
 
                 win_button_yes->setVisible(true);
@@ -350,6 +374,8 @@ void Game_stage::set_visible(bool flag) noexcept {
 
     delay_label->setVisible(flag && current_game_is_running);
     delay_slider->setVisible(flag && current_game_is_running);
+
+    console_logger->setVisible(flag);
 
     clock.restart();
 }

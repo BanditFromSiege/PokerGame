@@ -112,6 +112,13 @@ public:
 	constexpr std::uint8_t get_card_index() const noexcept {
 		return 13 * static_cast<std::uint8_t>(suit) + static_cast<std::uint8_t>(rank);
 	}
+
+	constexpr std::string get_str() const noexcept {
+		std::string res{ card_value_to_char(rank) };
+		res += card_suit_to_char(suit);
+
+		return res;
+	}
 };
 
 inline std::ostream& operator<<(std::ostream& out, Card c) {

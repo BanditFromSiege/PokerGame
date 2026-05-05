@@ -5,13 +5,13 @@
 class Poker_game_manager final {
 private:
 	Poker_deck deck;
+	Table table;
 
 	std::unordered_set<std::uint8_t> players_ids_in_game{};
 
 	std::vector<std::uint8_t> players_index{};
 	std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>> winners_and_rewards{};
-
-	Table& table;
+	
 	std::vector<Player>& players;
 	std::mt19937_64& rng;
 	Probability_evaluator<std::execution::sequenced_policy>& evaluator_sequenced;
@@ -57,30 +57,30 @@ private:
 
 public:
 	Poker_game_manager(
-		Table& table,
 		std::mt19937_64& rng,
 		std::vector<Player>& players,
 		Probability_evaluator<std::execution::sequenced_policy>& eval_seq,
 		Probability_evaluator<std::execution::parallel_policy>& eval_par
 	) noexcept;
 
-	const Table& get_table() noexcept;
-	Poker_stage get_current_stage() noexcept;
-
-	const std::optional<std::uint8_t> get_current_player_id() noexcept;
-	const std::uint8_t get_dealer_player_id() noexcept;
-
-	std::uint8_t get_active_players() noexcept;
-	auto get_winners_and_rewards() noexcept
+	const Table& get_table() const noexcept;
+	const std::vector<Player>& get_players() const noexcept;
+	Poker_stage get_current_stage() const noexcept;
+	const std::optional<std::uint8_t> get_current_player_id() const noexcept;
+	const std::uint8_t get_dealer_player_id() const noexcept;
+	std::uint8_t get_active_players() const noexcept;
+	auto get_winners_and_rewards() const noexcept
 		-> const std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>>&;
 
-	std::size_t get_number_of_rounds() noexcept;
+	std::size_t get_number_of_rounds() const noexcept;
+	std::optional<std::uint8_t> get_winner_id() const noexcept;
 
 	void set_evaluator_sequenced_policy() noexcept;
 	void set_evaluator_parallel_policy() noexcept;
 
 	void reset_for_new_game() noexcept;
-	bool is_game_still_run() noexcept;
+
+	bool is_game_still_run() const noexcept;
 
 	void call_next_move() noexcept;
 };

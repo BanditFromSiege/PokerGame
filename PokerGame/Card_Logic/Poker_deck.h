@@ -27,7 +27,8 @@ public:
 
 			if (!unique_cards_checker[index]) {
 				unique_cards_checker[index] = true;
-			} else {
+			}
+			else {
 				return false;
 			}
 		}
@@ -55,7 +56,8 @@ public:
 
 			if (!unique_cards_checker[index]) {
 				unique_cards_checker[index] = true;
-			} else {
+			}
+			else {
 				return std::nullopt;
 			}
 		}

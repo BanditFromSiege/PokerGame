@@ -91,7 +91,8 @@ Settings_stage::Settings_stage(
 
 	if (current_execution_mode_sequenced) {
 		sequenced_radio_button->setChecked(true);
-	} else {
+	}
+	else {
 		parallel_radio_button->setChecked(true);
 	}
 
@@ -132,11 +133,14 @@ Settings_stage::Settings_stage(
 
 	if (current_color == Render_color::Red) {
 		red_radio_button->setChecked(true);
-	} else if (current_color == Render_color::Green) {
+	}
+	else if (current_color == Render_color::Green) {
 		green_radio_button->setChecked(true);
-	} else if (current_color == Render_color::Blue) {
+	}
+	else if (current_color == Render_color::Blue) {
 		blue_radio_button->setChecked(true);
-	} else if (current_color == Render_color::Purple) {
+	}
+	else if (current_color == Render_color::Purple) {
 		purple_radio_button->setChecked(true);
 	}
 

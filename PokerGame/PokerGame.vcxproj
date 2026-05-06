@@ -132,11 +132,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game_Logic\Logger.cpp" />
-    <ClCompile Include="Game_Logic\Player.cpp" />
+    <ClCompile Include="Game_Logic\Logic_models\Player.cpp" />
     <ClCompile Include="Game_Logic\Poker_game_manager.cpp" />
-    <ClCompile Include="Game_Logic\Table.cpp" />
+    <ClCompile Include="Game_Logic\Logic_models\Table.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Game_Logic\Pot.cpp" />
+    <ClCompile Include="Game_Logic\Logic_models\Pot.cpp" />
     <ClCompile Include="Render_Logic\Render_stages\Preparing_stage.cpp" />
     <ClCompile Include="Render_Logic\Render_models\Card_render.cpp" />
     <ClCompile Include="Render_Logic\Render_models\Player_render.cpp" />
@@ -157,10 +157,10 @@
     <ClInclude Include="Card_Logic\Enums.h" />
     <ClInclude Include="Game_Logic\Enums.h" />
     <ClInclude Include="Game_Logic\Logger.h" />
-    <ClInclude Include="Game_Logic\Player.h" />
+    <ClInclude Include="Game_Logic\Logic_models\Player.h" />
     <ClInclude Include="Game_Logic\Poker_game_manager.h" />
-    <ClInclude Include="Game_Logic\Table.h" />
-    <ClInclude Include="Game_Logic\Pot.h" />
+    <ClInclude Include="Game_Logic\Logic_models\Table.h" />
+    <ClInclude Include="Game_Logic\Logic_models\Pot.h" />
     <ClInclude Include="Game_Logic\Tests.h" />
     <ClInclude Include="Render_Logic\Render_stages\Preparing_stage.h" />
     <ClInclude Include="Render_Logic\Enums.h" />

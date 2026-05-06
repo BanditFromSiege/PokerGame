@@ -1,6 +1,6 @@
 #pragma once
-#include "Enums.h"
-#include "../Card_Logic/Probability_evaluator.h"
+#include "../Enums.h"
+#include "../../Card_Logic/Probability_evaluator.h"
 
 class Player final {
 private:

@@ -1,5 +1,5 @@
 #pragma once
-#include "Table.h"
+#include "Logic_models/Table.h"
 #include <unordered_set>
 
 class Poker_game_manager final {

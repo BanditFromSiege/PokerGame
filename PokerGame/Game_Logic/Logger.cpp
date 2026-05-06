@@ -60,7 +60,7 @@ std::string Logger::get_str_showdown() noexcept {
 
     std::string result = "\n";
 
-    for (std::size_t i = 0; auto& [money, ids] : c_ref_winners_and_rewards) {
+    for (std::size_t i = 0; const auto& [money, ids] : c_ref_winners_and_rewards) {
         result += "Pot " + std::to_string(++i);
         result += " [" + std::to_string(money) + "] Winners: ";
 
@@ -72,7 +72,7 @@ std::string Logger::get_str_showdown() noexcept {
 
         if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
             result += " (Combination - ";
-            result += combination_to_c_str(c_ref_players[ids.front()].get_combination()->get_power());
+            result += combination_to_c_str(opt_comb->get_power());
             result += ')';
         }
         result += ";\n";
@@ -132,7 +132,7 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
         }
     }
 
-    result += "\n";
+    result += '\n';
 
     return result;
 }

@@ -1,125 +1,19 @@
 #pragma once
 #include "Poker_game_manager.h"
-#include <string>
-/*
-template <typename T = std::execution::sequenced_policy>
-requires (std::is_same_v<T, std::execution::sequenced_policy> || std::is_same_v<T, std::execution::parallel_policy>)
-void Test_poker_game_in_console(std::uint8_t number_of_players, Player_difficulty d) {
-	number_of_players = std::clamp(
-		number_of_players,
-		Probability_evaluator<>::MIN_PLAYERS,
-		Probability_evaluator<>::MAX_PLAYERS
-	);
-
-    std::mt19937_64 rng{ std::random_device{}() };
-
-    std::vector<Player> players;
-    players.reserve(number_of_players);
-
-    for (std::uint8_t i = 0; i < number_of_players; ++i) {
-        std::string name = "Bot_";
-        name += std::to_string(i);
-
-        players.emplace_back(Player{
-            std::move(name), i, 1000, d
-        });
-    }
-
-    Poker_game_manager manager(rng, players);
-
-    if constexpr (std::is_same_v<T, std::execution::parallel_policy>) {
-        manager.set_evaluator_parallel_policy();
-    }
-
-    while (manager.is_game_still_run()) {
-        const auto stage = manager.get_current_stage();
-        auto table = manager.get_table();
-
-        if (stage == Poker_stage::Preparation_preflop) {
-            std::cout << "New round\n";
-        }
-
-        const Player* p = manager.get_current_player();
-
-        if (p) {
-            if (p->is_all_in()) {
-                std::cout << "Player: " << p->get_name() << " | Money: " << p->get_money()
-                    << " | Cards: " << p->get_cards()[0] << ' ' << p->get_cards()[1]
-                    << " | Status: " << Player_status::All_in << '\n';
-            }
-            else {
-                std::cout << "Player: " << p->get_name() << " | Money: " << p->get_money()
-                    << " | Cards: " << p->get_cards()[0] << ' ' << p->get_cards()[1];
-
-                auto p_move = p->get_last_move();
-
-                std::cout << " | Status: " << p_move;
-
-                if (p_move == Player_action::Call || p_move == Player_action::Raise) {
-                    std::cout << " | Bet: " << p->get_last_bet() << " | Diff: " << p->get_bet_difference()
-                        << " | Sum_of_bets " << table.get_sum_of_bets_on_current_stage() << '\n';
-                }
-                else if (p_move == Player_action::Fold) {
-                    std::cout << " | Bet: " << 0 << ' ' << " | Sum_of_bets " << table.get_sum_of_bets_on_current_stage() << '\n';
-                }
-                else if (p_move == Player_action::Check) {
-                    std::cout << " | Bet: " << 0 << ' ' << " | Sum_of_bets " << table.get_sum_of_bets_on_current_stage() << '\n';
-                }
-            }
-        }
-
-        if (stage == Poker_stage::After_showdown) {
-            std::cout << "\nShowdown\n";
-
-            const auto& vec = table.get_pots();
-
-            for (std::uint8_t i = 0; const auto& pot : vec) {
-                std::cout << pot.get_bank() << " Players: ";
-
-                for (std::uint8_t id : pot.get_players_id()) {
-                    std::cout << int(id) << ' ';
-                }
-
-                std::cout << '\n';
-            }
-
-            const auto& winners_and_rewards = manager.get_winners_and_rewards();
-
-            for (const auto& pair : winners_and_rewards) {
-                std::cout << "WIN: ";
-
-                for (std::uint8_t id : pair.second) {
-                    std::cout << players[id].get_name() << ' ';
-                }
-
-                std::cout << " Reward: " << pair.first << '\n';
-            }
-
-            std::cout << '\n';
-        }
-
-        manager.call_next_move();
-
-        table = manager.get_table();
-
-        if (stage == Poker_stage::Preparation_flop || stage == Poker_stage::Preparation_turn || stage == Poker_stage::Preparation_river) {
-            std::cout << '\n';
-            table.show_table();
-        }
-    }
-
-    for (const Player& p : players) {
-        std::cout << "Player: " << p.get_name() << " | Money: " << p.get_money() << " | Status: " << p.get_player_status() << '\n';
-        if (p.get_player_status() == Player_status::Active && p.get_money() != players.size() * 1000) {
-            throw std::runtime_error("Error");
-        }
-    }
-}
 
 template <typename T = std::execution::sequenced_policy>
 requires (std::is_same_v<T, std::execution::sequenced_policy> || std::is_same_v<T, std::execution::parallel_policy>)
 void Poker_stability_test(std::uint8_t number_of_players, Player_difficulty d, std::size_t number_of_iterations) {
     std::mt19937_64 rng{ std::random_device{}() };
+
+    Probability_evaluator<std::execution::sequenced_policy> eval_seq;
+    Probability_evaluator<std::execution::parallel_policy> eval_par;
+
+    number_of_players = std::clamp(
+        number_of_players,
+        Probability_evaluator<>::MIN_PLAYERS,
+        Probability_evaluator<>::MAX_PLAYERS
+    );
     
     for (std::size_t i = 0; i < number_of_iterations; ++i) {
         std::cout << i + 1 << " test\n";
@@ -127,16 +21,16 @@ void Poker_stability_test(std::uint8_t number_of_players, Player_difficulty d, s
         std::vector<Player> players;
         players.reserve(number_of_players);
 
-        for (std::uint8_t i = 0; i < number_of_players; ++i) {
+        for (std::uint8_t j = 0; j < number_of_players; ++j) {
             std::string name = "Bot_";
-            name += std::to_string(i);
+            name += std::to_string(j);
 
             players.emplace_back(Player{
-                std::move(name), i, 1000, d
+                std::move(name), j, 1000, d
             });
         }
 
-        Poker_game_manager manager(rng, players);
+        Poker_game_manager manager(rng, players, eval_seq, eval_par);
 
         if constexpr (std::is_same_v<T, std::execution::parallel_policy>) {
             manager.set_evaluator_parallel_policy();
@@ -147,12 +41,12 @@ void Poker_stability_test(std::uint8_t number_of_players, Player_difficulty d, s
         }
 
         for (const Player& p : players) {
-            std::cout << "Player: " << p.get_name() << " | Money: " << p.get_money() << " | Status: " << p.get_player_status() << '\n';
-            if (p.get_player_status() == Player_status::Active && p.get_money() != players.size() * 1000) {
+            std::cout << "Player: " << p.get_name() << " | Money: " << p.get_money() << " | Status: " << p.get_status() << '\n';
+            if (p.get_status() == Player_status::Active && p.get_money() != players.size() * 1000) {
                 throw std::runtime_error("Error");
             }
         }
 
         std::cout << '\n';
     }
-}*/
+}

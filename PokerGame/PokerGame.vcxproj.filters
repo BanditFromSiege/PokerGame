@@ -18,13 +18,13 @@
     <ClCompile Include="Main.cpp">
       <Filter>Файлы ресурсов</Filter>
     </ClCompile>
-    <ClCompile Include="Game_Logic\Player.cpp">
+    <ClCompile Include="Game_Logic\Logic_models\Player.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Game_Logic\Table.cpp">
+    <ClCompile Include="Game_Logic\Logic_models\Table.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Game_Logic\Pot.cpp">
+    <ClCompile Include="Game_Logic\Logic_models\Pot.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Game_Logic\Poker_game_manager.cpp">
@@ -86,16 +86,16 @@
     <ClInclude Include="Game_Logic\Enums.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Game_Logic\Player.h">
+    <ClInclude Include="Game_Logic\Logic_models\Player.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Game_Logic\Table.h">
+    <ClInclude Include="Game_Logic\Logic_models\Table.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Game_Logic\Poker_game_manager.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Game_Logic\Pot.h">
+    <ClInclude Include="Game_Logic\Logic_models\Pot.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="Game_Logic\Tests.h">

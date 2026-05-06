@@ -40,7 +40,7 @@ void Showdown_render::update_showdown() noexcept {
 
 		if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
 			text += " (Combination - ";
-			text += combination_to_c_str(c_ref_players[ids.front()].get_combination()->get_power());
+			text += combination_to_c_str(opt_comb->get_power());
 			text += ')';
 
 			winners_and_rewards_label[i]->setVisible(true);

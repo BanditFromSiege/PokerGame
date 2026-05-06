@@ -21,6 +21,7 @@ std::uint8_t Poker_game_manager::get_next_id(std::uint8_t index) noexcept {
 
 void Poker_game_manager::find_absolute_probabilities_for_players() noexcept {
 	std::vector<std::uint8_t> active_players_ids;
+	active_players_ids.reserve(active_players);
 
 	for (const auto& p : players) {
 		if (p.is_active() || p.is_all_in()) {

@@ -144,9 +144,10 @@ void Player::reset_for_new_hand() noexcept {
 	current_bet = 0;
 	sum_of_bets = 0;
 
-	last_move = std::nullopt;
+	combination = std::nullopt;
 	absolute_probability = std::nullopt;
 	relative_probability = std::nullopt;
+	last_move = std::nullopt;
 }
 
 void Player::reset_for_new_game() noexcept {

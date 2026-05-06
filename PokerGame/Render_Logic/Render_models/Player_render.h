@@ -14,6 +14,7 @@ private:
 
     std::shared_ptr<tgui::Label> name_and_money_label = nullptr;
     std::shared_ptr<tgui::Label> player_action_and_bet_label = nullptr;
+    std::shared_ptr<tgui::Label> probabilities_label = nullptr;
     std::shared_ptr<tgui::Label> combination_label = nullptr;
 
     std::shared_ptr<tgui::Picture> dealer_button = nullptr;

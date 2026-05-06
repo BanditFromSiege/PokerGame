@@ -30,9 +30,14 @@ Player_render::Player_render(
     player_action_and_bet_label->setPosition({ coords.first + 25, coords.second + 185 });
     player_action_and_bet_label->setTextSize(20);
     player_action_and_bet_label->getRenderer()->setTextColor(tgui::Color::White);
+
+    probabilities_label = tgui::Label::create();
+    probabilities_label->setPosition({ coords.first + 25, coords.second + 210 });
+    probabilities_label->setTextSize(20);
+    probabilities_label->getRenderer()->setTextColor(tgui::Color::Yellow);
     
     combination_label = tgui::Label::create();
-    combination_label->setPosition({ coords.first + 25, coords.second + 210 });
+    combination_label->setPosition({ coords.first + 25, coords.second + 235 });
     combination_label->setTextSize(20);
     combination_label->getRenderer()->setTextColor(tgui::Color::Red);
 
@@ -44,6 +49,7 @@ Player_render::Player_render(
     gui.add(current_player_arrow);
     gui.add(name_and_money_label);
     gui.add(player_action_and_bet_label);
+    gui.add(probabilities_label);
     gui.add(combination_label);
     gui.add(dealer_button);
 }
@@ -118,6 +124,27 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
         is_has_current_player_arrow = false;
     }
 
+    if (auto opt_absolute_probability = player.get_absolute_probability(),
+        opt_relative_probability = player.get_relative_probability(); 
+        opt_absolute_probability || opt_relative_probability)
+    {
+        std::string str;
+
+        if (opt_absolute_probability) {
+            str += std::format("AP ({:.2f}) ", *opt_absolute_probability) + ' ';
+        }
+
+        if (opt_relative_probability) {
+            str += std::format("RP ({:.2f}) ", *opt_relative_probability);
+        }
+
+        probabilities_label->setText(std::move(str));
+        probabilities_label->setVisible(true);
+    }
+    else {
+        probabilities_label->setVisible(false);
+    }
+
     if (auto opt_comb = player.get_combination(); opt_comb && (player.is_active() || player.is_all_in())) {
         combination_label->setVisible(true);
         combination_label->setText(combination_to_c_str(opt_comb->get_power()));
@@ -143,6 +170,7 @@ void Player_render::set_visible(bool flag) noexcept {
 
         name_and_money_label->setVisible(false);
         player_action_and_bet_label->setVisible(false);
+        probabilities_label->setVisible(false);
         combination_label->setVisible(false);
 
         dealer_button->setVisible(false);
@@ -158,7 +186,13 @@ void Player_render::set_visible(bool flag) noexcept {
                 player.get_last_move().has_value() || player.get_current_bet() > 0 || player.get_money() == 0
             );
 
-            combination_label->setVisible(player.get_combination().has_value());
+            probabilities_label->setVisible(
+                player.get_absolute_probability().has_value() || player.get_relative_probability().has_value()
+            );
+
+            combination_label->setVisible(
+                player.get_combination().has_value() && (player.is_active() || player.is_all_in())
+            );
         }
 
         card1.set_visible(true);
@@ -177,6 +211,7 @@ void Player_render::remove_from_gui() noexcept {
 
     gui.remove(name_and_money_label);
     gui.remove(player_action_and_bet_label);
+    gui.remove(probabilities_label);
     gui.remove(combination_label);
 
     gui.remove(dealer_button);

@@ -29,6 +29,7 @@ std::string Logger::get_str_table() noexcept {
     const auto& c_ref_players = c_ref_manager.get_players();
 
     std::string result = "\nTable cards: ";
+    result.reserve(256);
 
     for (Card c : c_ref_table.get_cards()) {
         result += c.get_str() + ' ';
@@ -59,6 +60,7 @@ std::string Logger::get_str_showdown() noexcept {
     const auto& c_ref_players = c_ref_manager.get_players();
 
     std::string result = "\n";
+    result.reserve(256);
 
     for (std::size_t i = 0; const auto& [money, ids] : c_ref_winners_and_rewards) {
         result += "Pot " + std::to_string(++i);
@@ -90,20 +92,27 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
     }
 
     std::string result = "[";
+    result.reserve(256);
+
     result += get_time();
     result += "] ";
     result += p.get_name();
 
-    result += " (" + p.get_cards()[0].get_str() + " " + p.get_cards()[1].get_str();
+    result += " {" + p.get_cards()[0].get_str() + ", " + p.get_cards()[1].get_str();
+
+    if (auto opt_absolute_probability = p.get_absolute_probability(); opt_absolute_probability) {
+        result += std::format(", AP({:.2f})", *opt_absolute_probability);
+    }
+
+    if (auto opt_relative_probability = p.get_relative_probability(); opt_relative_probability) {
+        result += std::format(", RP({:.2f})", *opt_relative_probability);
+    }
     
     if (auto opt_combination = p.get_combination(); opt_combination) {
-        result += " " + std::string(combination_to_c_str(opt_combination->get_power())) + ") ";
+        result += ", " + std::string(combination_to_c_str(opt_combination->get_power()));
     }
-    else {
-        result += ") ";
-    }
-        
-    result += "[" + std::to_string(p.get_money()) + "]";
+
+    result += "} [" + std::to_string(p.get_money()) + "]";
 
     if (opt_move == Player_action::Fold) {
         result += ": Fold;";
@@ -115,7 +124,7 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
             result += " (ALL-IN);";
         }
         else {
-            result += ";";
+            result += ';';
         }
     }
     else if (opt_move == Player_action::Check) {
@@ -128,7 +137,7 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
             result += " (ALL-IN);";
         }
         else {
-            result += ";";
+            result += ';';
         }
     }
 
@@ -141,6 +150,7 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
     auto opt_id = c_ref_manager.get_current_player_id();
 
     std::string result;
+    result.reserve(256);
 
     if (stage == Poker_stage::Preflop && !opt_id) {
         auto rounds = c_ref_manager.get_number_of_rounds();
@@ -235,6 +245,7 @@ std::string Logger::get_message() noexcept {
         const auto& c_ref_players = c_ref_manager.get_players();
 
         std::string result;
+        result.reserve(256);
 
         for (std::size_t i = 0; i < c_ref_players.size(); ++i) {
             if (c_ref_players[i].get_status() == Player_status::Out_game && !outed_players[i]) {

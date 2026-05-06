@@ -8,6 +8,9 @@ private:
 
 	std::optional<Poker_combination> combination = std::nullopt;
 
+	std::optional<double> relative_probability = std::nullopt;
+	std::optional<double> absolute_probability = std::nullopt;
+
 	const std::size_t initial_money = 0;
 
 	std::size_t money = 0;
@@ -27,10 +30,14 @@ public:
 	inline static std::size_t count_of_big_blinds = 50;
 
 	Player() noexcept;
-	Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d);
+	Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d) noexcept;
 
 	std::string get_name() const noexcept;
 	std::optional<Poker_combination> get_combination() const noexcept;
+
+	std::optional<double> get_relative_probability() const noexcept;
+	std::optional<double> get_absolute_probability() const noexcept;
+
 	std::size_t get_money() const noexcept;
 	std::size_t get_current_bet() const noexcept;
 	std::size_t get_sum_of_bets() const noexcept;
@@ -49,6 +56,10 @@ public:
 	void check_money_enough() noexcept;
 
 	void set_combination(const std::vector<Card>& table_cards) noexcept;
+
+	void set_relative_probability(std::optional<double> probability) noexcept;
+	void set_absolute_probability(std::optional<double> probability) noexcept;
+
 	void set_current_bet(std::size_t bet) noexcept;
 	void set_sum_of_bets(std::size_t bet) noexcept;
 	void set_cards(Card c1, Card c2) noexcept;
@@ -105,6 +116,8 @@ public:
 		win_prob += (noise(rng) / 100.0);
 
 		win_prob = std::clamp(win_prob, 0.0, 1.0);
+
+		relative_probability = win_prob;
 
 		std::vector<std::size_t> bets;
 

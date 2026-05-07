@@ -5,14 +5,18 @@ class Table_render final {
 private:
 	tgui::Gui& gui;
 
-	const Table& table;
-	std::array<std::shared_ptr<tgui::Label>, Probability_evaluator<>::MAX_PLAYERS - 1> pots_label;
+	const Poker_game_manager& c_ref_manager;
+
+	std::shared_ptr<tgui::Label> blinds_label = nullptr;
+	std::array<std::shared_ptr<tgui::Label>, Probability_evaluator<>::MAX_PLAYERS - 1> pots_label
+		= { nullptr };
+
 	std::array<Card_render, Card::COUNT_OF_TABLE_CARDS_ON_RIVER> table_cards;
 
 public:
 	Table_render(
 		tgui::Gui& gui,
-		const Table& table,
+		const Poker_game_manager& manager,
 		std::pair<std::uint16_t, std::uint16_t> coords
 	) noexcept;
 

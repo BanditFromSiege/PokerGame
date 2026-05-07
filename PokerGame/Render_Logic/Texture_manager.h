@@ -1,5 +1,5 @@
 #pragma once
-#include "../Game_Logic/Poker_game_manager.h"
+#include "../Game_Logic/Logger.h"
 #include <SFML/Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>

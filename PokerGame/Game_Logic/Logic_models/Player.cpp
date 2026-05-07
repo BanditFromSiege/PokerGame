@@ -2,7 +2,7 @@
 
 Player::Player() noexcept = default;
 
-Player::Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d)
+Player::Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d) noexcept
 	: name(std::move(name))
 	, id(id)
 	, initial_money(money)
@@ -17,6 +17,14 @@ std::string Player::get_name() const noexcept {
 
 std::optional<Poker_combination> Player::get_combination() const noexcept {
 	return combination;
+}
+
+std::optional<double> Player::get_relative_probability() const noexcept {
+	return relative_probability;
+}
+
+std::optional<double> Player::get_absolute_probability() const noexcept {
+	return absolute_probability;
 }
 
 std::size_t Player::get_money() const noexcept {
@@ -35,10 +43,6 @@ std::size_t Player::get_current_big_blind() const noexcept {
 	return current_big_blind;
 }
 
-std::size_t Player::get_bet_difference() const noexcept {
-	return bet_difference;
-}
-
 std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> Player::get_cards() const noexcept {
 	return cards;
 }
@@ -53,6 +57,10 @@ std::optional<Player_action> Player::get_last_move() const noexcept {
 
 std::uint8_t Player::get_id() const noexcept {
 	return id;
+}
+
+Player_difficulty Player::get_difficulty() const noexcept {
+	return difficulty;
 }
 
 Player_status Player::get_status() const noexcept {
@@ -83,6 +91,14 @@ void Player::set_combination(const std::vector<Card>& table_cards) noexcept {
 	combination = Poker_combination::create_combination_by_cards(new_span);
 }
 
+void Player::set_relative_probability(std::optional<double> probability) noexcept {
+	relative_probability = probability;
+}
+
+void Player::set_absolute_probability(std::optional<double> probability) noexcept {
+	absolute_probability = probability;
+}
+
 void Player::set_current_bet(std::size_t bet) noexcept {
 	current_bet = bet;
 }
@@ -93,6 +109,10 @@ void Player::set_sum_of_bets(std::size_t bet) noexcept {
 
 void Player::set_cards(Card c1, Card c2) noexcept {
 	combination = std::nullopt;
+
+	absolute_probability = std::nullopt;
+	relative_probability = std::nullopt;
+
 	cards[0] = c1;
 	cards[1] = c2;
 	status = Player_status::Active;
@@ -113,6 +133,7 @@ void Player::set_last_move(std::optional<Player_action> new_move) noexcept {
 void Player::make_fold() noexcept {
 	status = Player_status::Folded;
 	current_bet = 0;
+	absolute_probability = std::nullopt;
 }
 
 void Player::get_win(std::size_t share) noexcept {
@@ -122,7 +143,10 @@ void Player::get_win(std::size_t share) noexcept {
 void Player::reset_for_new_hand() noexcept {
 	current_bet = 0;
 	sum_of_bets = 0;
-	bet_difference = 0;
+
+	combination = std::nullopt;
+	absolute_probability = std::nullopt;
+	relative_probability = std::nullopt;
 	last_move = std::nullopt;
 }
 
@@ -138,14 +162,13 @@ std::size_t Player::make_bet_or_check(std::size_t bet) noexcept {
 		diff = money;
 		status = Player_status::All_in;
 		current_bet += diff;
-	} else {
+	}
+	else {
 		current_bet = bet;
 	}
 
 	money -= diff;
 	sum_of_bets += diff;
-
-	bet_difference = diff;
 	
 	return diff;
 }

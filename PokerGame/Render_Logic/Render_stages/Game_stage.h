@@ -2,11 +2,13 @@
 #include "../Enums.h"
 #include "../Render_models/Showdown_render.h"
 #include <numbers>
-#include <format>
+#include <fstream>
 
 class Game_stage final {
 private:
 	tgui::Gui& gui;
+
+	std::ofstream file;
 
 	Render_stages& current_stage;
 	Render_color& current_color;
@@ -18,8 +20,6 @@ private:
 
 	std::uint8_t& selected_players;
 	std::mt19937_64& rng;
-
-	Table table;
 
 	std::vector<Player> players{};
 	std::vector<Player_render> players_render{};
@@ -37,9 +37,12 @@ private:
 	std::shared_ptr<tgui::Label> delay_label = nullptr;
 	std::shared_ptr<tgui::Slider> delay_slider = nullptr;
 
+	std::shared_ptr<tgui::TextArea> console_logger = nullptr;
+
 	std::unique_ptr<Poker_game_manager> ptr_manager = nullptr;
 	std::unique_ptr<Table_render> ptr_table_render = nullptr;
 	std::unique_ptr<Showdown_render> ptr_showdown_render = nullptr;
+	std::unique_ptr<Logger> ptr_logger = nullptr;
 
 	sf::Clock clock;
 

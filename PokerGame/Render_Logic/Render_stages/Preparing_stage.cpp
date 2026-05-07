@@ -122,9 +122,11 @@ Preparing_stage::Preparing_stage(
 
 	if (current_diff == Player_difficulty::Easy) {
 		easy_diff->setChecked(true);
-	} else if (current_diff == Player_difficulty::Medium) {
+	}
+	else if (current_diff == Player_difficulty::Medium) {
 		medium_diff->setChecked(true);
-	} else {
+	}
+	else {
 		hard_diff->setChecked(true);
 	}
 

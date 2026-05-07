@@ -18,17 +18,16 @@ public:
 
 	std::size_t get_current_bet() const noexcept;
 	std::size_t get_last_bet_diff() const noexcept;
-
 	const std::vector<Card>& get_cards() const noexcept;
 	std::size_t get_bank_for_player(const Player& p) const noexcept;
 
 	std::vector<Pot>& get_pots() noexcept;
+
 	const std::vector<Pot>& get_const_pots() const noexcept;
 	std::size_t get_sum_of_bets_on_current_stage() const noexcept;
 
 	void set_current_bet(std::size_t bet) noexcept;
+
 	void reset_sum_of_bets_on_current_stage() noexcept;
 	void clear() noexcept;
-
-	void show_table() const noexcept;
 };

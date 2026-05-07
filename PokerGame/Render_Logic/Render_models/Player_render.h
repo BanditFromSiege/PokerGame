@@ -12,10 +12,9 @@ private:
     bool is_has_dealer_button = false;
     bool is_has_current_player_arrow = false;
 
-    std::shared_ptr<tgui::Label> name_label = nullptr;
-    std::shared_ptr<tgui::Label> money_label = nullptr;
-    std::shared_ptr<tgui::Label> bet_label = nullptr;
-    std::shared_ptr<tgui::Label> player_action_label = nullptr;
+    std::shared_ptr<tgui::Label> name_and_money_label = nullptr;
+    std::shared_ptr<tgui::Label> player_action_and_bet_label = nullptr;
+    std::shared_ptr<tgui::Label> probabilities_label = nullptr;
     std::shared_ptr<tgui::Label> combination_label = nullptr;
 
     std::shared_ptr<tgui::Picture> dealer_button = nullptr;

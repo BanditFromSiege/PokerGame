@@ -62,22 +62,7 @@ private:
 	std::uint8_t dealer_id = 0;
 
 	void create_players() noexcept;
-
 	void reset_game() noexcept;
-
-	std::shared_ptr<tgui::Label> make_label(
-		std::pair<std::uint16_t, std::uint16_t> coords,
-		std::uint8_t text_size,
-		tgui::Color text_color,
-		const std::string& text
-	) noexcept;
-
-	std::shared_ptr<tgui::Button> make_button(
-		std::pair<std::uint16_t, std::uint16_t> coords,
-		std::uint8_t text_size,
-		const std::string& text,
-		std::function<void()> func
-	) noexcept;
 
 public:
 	Game_stage(

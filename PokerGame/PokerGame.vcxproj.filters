@@ -63,6 +63,9 @@
     <ClCompile Include="Game_Logic\Logger.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Card_Logic\Probability_evaluator.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Card_Logic\Enums.h">

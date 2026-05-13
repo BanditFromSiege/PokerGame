@@ -207,3 +207,130 @@ std::size_t Player::make_bet_or_check(std::size_t bet) noexcept {
 	
 	return diff;
 }
+
+std::pair<Player_action, std::size_t> Player::make_decision(
+	std::mt19937_64& rng,
+	Probability_evaluator& evaluator,
+	std::span<const Card> table_cards,
+	std::span<const Player> players,
+	std::size_t bank_with_all_current_bets_on_street,
+	std::size_t table_current_bet,
+	std::size_t table_current_big_blind,
+	std::size_t table_last_bet_diff
+) noexcept {
+	const std::size_t bet_for_call = table_current_bet - current_player_bet;
+
+	const std::uint8_t count_of_active_players = std::count_if(players.begin(), players.end(),
+		[](const Player& p) {
+			return p.is_active() || p.is_all_in();
+		}
+	);
+
+	std::size_t max_bet = 0;
+
+	for (const Player& p : players) {
+		if (p.get_id() != id && p.get_money() != 0 && (p.is_active() || p.is_all_in())) {
+			max_bet = std::max(max_bet, p.get_money());
+		}
+	}
+
+	max_bet = std::min(max_bet, money);
+
+	auto [win_prob, table_prob] = *evaluator.get_relative_probability(
+		this->get_cards(),
+		table_cards,
+		count_of_active_players);
+
+	std::uniform_real_distribution<double> noise(
+		-0.05 * static_cast<double>(difficulty), 0.05 * static_cast<double>(difficulty)
+	);
+
+	win_prob += noise(rng);
+	win_prob -= tightness;
+
+	win_prob = std::clamp(win_prob, 0.0, 1.0);
+
+	relative_probability = win_prob;
+
+	const double multiway_factor
+		= static_cast<double>(count_of_active_players - 1)
+		/ static_cast<double>(Probability_evaluator::MAX_PLAYERS);
+
+	const double table_aggression_factor = 1.0 - table_prob * multiway_factor;
+
+	const double personality_risk_factor = std::clamp(1.0 - aggression, 0.5, 1.5);
+
+	const double final_risk_factor = table_aggression_factor * personality_risk_factor;
+
+	std::vector<std::size_t> bets;
+
+	double max_ev = 0.0;
+
+	std::size_t potential_bet = bet_for_call;
+
+	bool begin_raise_bet = true;
+
+	if (table_last_bet_diff < table_current_big_blind) {
+		table_last_bet_diff = table_current_big_blind;
+	}
+
+	do {
+		const double ev =
+			(win_prob * (bank_with_all_current_bets_on_street + potential_bet))
+			- (potential_bet * (1 - win_prob)) * final_risk_factor;
+
+		if (ev > max_ev) {
+			max_ev = ev;
+			bets.push_back(potential_bet);
+		}
+		else {
+			break;
+		}
+
+		if (begin_raise_bet) {
+			potential_bet += table_last_bet_diff;
+			begin_raise_bet = false;
+		}
+		else {
+			potential_bet += table_current_big_blind;
+		}
+
+	} while (potential_bet <= max_bet);
+
+	std::size_t new_bet = 0;
+
+	if (bets.size() == 1) {
+		new_bet = bets.front();
+	}
+	else if (bets.size() > 1) {
+		std::vector<std::size_t> weights;
+		weights.reserve(bets.size());
+
+		for (std::size_t i = bets.size(); i > 0; --i) {
+			weights.push_back(i);
+		}
+
+		std::discrete_distribution<> random_bet_index(weights.begin(), weights.end());
+		new_bet = bets[random_bet_index(rng)];
+	}
+
+	if (bet_for_call == 0) {
+		if (new_bet > 0) {
+			return { Player_action::Raise, new_bet + table_current_bet };
+		}
+		else {
+			return { Player_action::Check, 0 };
+		}
+	}
+	else {
+		if (new_bet > bet_for_call) {
+			return { Player_action::Raise, new_bet + current_player_bet };
+		}
+		else if (new_bet == bet_for_call) {
+			return { Player_action::Call, table_current_bet };
+		}
+		else {
+			return { Player_action::Fold, 0 };
+		}
+	}
+}

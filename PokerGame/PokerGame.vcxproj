@@ -131,6 +131,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Card_Logic\Probability_evaluator.cpp" />
     <ClCompile Include="Game_Logic\Logger.cpp" />
     <ClCompile Include="Game_Logic\Logic_models\Player.cpp" />
     <ClCompile Include="Game_Logic\Poker_game_manager.cpp" />

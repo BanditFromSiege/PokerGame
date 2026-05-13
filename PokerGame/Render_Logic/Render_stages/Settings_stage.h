@@ -25,28 +25,6 @@ private:
 
     std::shared_ptr<tgui::Button> back_button = nullptr;
 
-    std::shared_ptr<tgui::Label> make_label(
-        std::pair<std::uint16_t, std::uint16_t> coords,
-        std::uint8_t text_size,
-        tgui::Color text_color,
-        const std::string& text
-    ) noexcept;
-
-    std::shared_ptr<tgui::Button> make_button(
-        std::pair<std::uint16_t, std::uint16_t> coords,
-        std::uint8_t text_size,
-        const std::string& text,
-        std::function<void()> func
-    ) noexcept;
-
-    std::shared_ptr<tgui::RadioButton> make_radio_button(
-        std::pair<std::uint16_t, std::uint16_t> coords,
-        std::uint8_t text_size,
-        tgui::Color text_color,
-        const std::string& text,
-        std::function<void()> func
-    ) noexcept;
-
 public:
     Settings_stage(
         tgui::Gui& gui,

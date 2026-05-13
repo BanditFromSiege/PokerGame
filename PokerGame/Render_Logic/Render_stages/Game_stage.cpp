@@ -11,7 +11,7 @@ void Game_stage::create_players() noexcept {
         name += std::to_string(i);
 
         players.emplace_back(Player{
-            std::move(name), i, 1000, current_diff
+            rng, std::move(name), i, 1000, current_diff
         });
     }
 
@@ -148,7 +148,7 @@ Game_stage::Game_stage(
     center_x = coords.first / 2.f;
     center_y = coords.second / 2.f;
 
-    paused_label = make_label({ center_x - 100, center_y - 180 }, 56, tgui::Color::Red, "Paused");
+    paused_label = make_label({ center_x - 100, 5 }, 56, tgui::Color::Red, "Paused");
     paused_label->setVisible(false);
 
     round_label = make_label({ 5, 5 }, 56, tgui::Color::White, "Round: 1");
@@ -263,9 +263,9 @@ void Game_stage::update() noexcept {
 
         create_players();
 
-        ptr_manager = std::make_unique<Poker_game_manager>(rng, players, eval_seq, eval_par);
+        ptr_manager = std::make_unique<Poker_game_manager>(rng, players, eval);
         ptr_table_render = std::make_unique<Table_render>(gui, *ptr_manager, std::pair{ center_x - 190, center_y - 100 });
-        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1300, 20 });
+        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1100, 20 });
         ptr_logger = std::make_unique<Logger>(*ptr_manager);
 
         console_logger->setText("");

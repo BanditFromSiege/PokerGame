@@ -4,13 +4,16 @@
 #include <execution>
 #include <ranges>
 
-template <typename T = std::execution::sequenced_policy>
-requires (std::is_same_v<T, std::execution::sequenced_policy> || std::is_same_v<T, std::execution::parallel_policy>)
 class Probability_evaluator final {
-private:
-	std::size_t iterations = 5000;
+public:
+	static constexpr std::uint8_t MAX_PLAYERS = 8;
+	static constexpr std::uint8_t MIN_PLAYERS = 2;
+	static constexpr std::size_t iterations = 5000;
 
-	std::optional<std::vector<double>> monte_carlo_evaluation(
+private:
+	bool is_sequnced_policy = true;
+
+	std::optional<std::pair<std::array<double, MAX_PLAYERS + 1>, std::size_t>> monte_carlo_evaluation(
 		std::span<const Card> initial_player_cards,
 		std::span<const Card> initial_table_cards,
 		std::span<const std::pair<Card, Card>> initial_opponent_cards,
@@ -62,9 +65,7 @@ private:
 			return std::nullopt;
 		}
 
-		std::array<std::atomic<double>, MAX_PLAYERS> probabilities{};
-
-		T policy;
+		std::array<std::atomic<double>, MAX_PLAYERS + 1> probabilities{};
 
 		Poker_deck deck = *opt_poker_deck;
 
@@ -72,11 +73,7 @@ private:
 
 		std::atomic<bool> failed = false;
 
-		std::for_each(
-			policy,
-			temp_range.begin(),
-			temp_range.end(),
-		[
+		auto main_work = [
 			&failed,
 			&deck,
 			&probabilities,
@@ -173,39 +170,61 @@ private:
 
 			std::size_t count = std::count(combinations.begin(), combinations.begin() + number_of_players, *res_it);
 
+			const double val = 1.0 / static_cast<double>(count);
+
 			for (std::uint8_t i = 0; i < number_of_players; ++i) {
 				if (*res_it == combinations[i]) {
-					double val = 1.0 / static_cast<double>(count);
 					probabilities[i].fetch_add(val, std::memory_order_relaxed);
 				}
 			}
-		});
 
+			if (*res_it == *Poker_combination::create_combination_by_cards(table_cards)) {
+				probabilities.back().fetch_add(1, std::memory_order_relaxed);
+			}
+		};
+
+		if (is_sequnced_policy) {
+			std::for_each(
+				std::execution::seq,
+				temp_range.begin(),
+				temp_range.end(),
+				main_work
+			);
+		}
+		else {
+			std::for_each(
+				std::execution::par,
+				temp_range.begin(),
+				temp_range.end(),
+				main_work
+			);
+		}
+		
 		if (failed.load(std::memory_order_relaxed)) {
 			return std::nullopt;
 		}
 
-		const std::size_t sz = 1 + initial_opponent_cards.size();
+		std::array<double, MAX_PLAYERS + 1> result = {0};
 
-		std::vector<double> result(sz);
-
-		for (std::uint8_t i = 0; i < sz; ++i) {
+		for (std::uint8_t i = 0; i < number_of_players; ++i) {
 			double val = probabilities[i].load(std::memory_order_relaxed);
 			result[i] = val / static_cast<double>(number_of_iterations);
 		}
 
-		return result;
+		result.back()
+			= probabilities.back().load(std::memory_order_relaxed) / static_cast<double>(number_of_iterations);
+
+		return std::pair{ result, number_of_players };
 	}
 
 public:
-	static constexpr std::uint8_t MAX_PLAYERS = 8;
-	static constexpr std::uint8_t MIN_PLAYERS = 2;
-
 	Probability_evaluator() noexcept = default;
 
-	Probability_evaluator(std::size_t n) noexcept : iterations(n) {};
+	void set_sequnced_execution_policy(bool sequnced_policy) noexcept {
+		is_sequnced_policy = sequnced_policy;
+	}
 
-	std::optional<double> get_relative_probability(
+	std::optional<std::pair<double, double>> get_relative_probability(
 		std::span<const Card> initial_player_cards,
 		std::span<const Card> initial_table_cards,
 		std::uint8_t number_of_players
@@ -219,13 +238,20 @@ public:
 		);
 
 		if (opt) {
-			return (*opt)[0];
+			auto [arr, size] = *opt;
+
+			if (initial_table_cards.empty()) {
+				return std::pair{ arr[0], 0.0 };
+			}
+			else {
+				return std::pair{ arr[0], arr.back() };
+			}
 		}
 
 		return std::nullopt;
 	}
 
-	std::optional<std::vector<double>> get_absolute_probability(
+	std::optional<std::pair<std::array<double, MAX_PLAYERS>, std::size_t>> get_absolute_probability(
 		std::span<const Card> initial_player_cards,
 		std::span<const Card> initial_table_cards,
 		std::span<const std::pair<Card, Card>> initial_opponent_cards,
@@ -244,9 +270,66 @@ public:
 		);
 
 		if (opt) {
-			return *opt;
+			std::array<double, MAX_PLAYERS> result;
+
+			auto [arr, size] = *opt;
+
+			for (std::size_t i = 0; i < size; ++i) {
+				result[i] = arr[i];
+			}
+
+			return std::pair{ result, size };
 		}
 
 		return std::nullopt;
+	}
+
+	void generate_and_show_preflop_table(std::uint8_t number_of_players) noexcept {
+		number_of_players = std::clamp(
+			number_of_players,
+			MIN_PLAYERS,
+			MAX_PLAYERS
+		);
+
+		std::vector<std::pair<double, std::tuple<std::uint8_t, std::uint8_t, bool>>> preflop_cards;
+		preflop_cards.reserve(Card::COUNT_OF_CARD_VALUES * Card::COUNT_OF_CARD_VALUES);
+
+		for (std::uint8_t i = 0; i < Card::COUNT_OF_CARD_VALUES; ++i) {
+			for (std::uint8_t j = i; j < Card::COUNT_OF_CARD_VALUES; ++j) {
+				if (i == j) {
+					Card c1(static_cast<Card_value>(i), Card_suit::Hearts);
+					Card c2(static_cast<Card_value>(j), Card_suit::Spades);
+
+					auto [probablity, _] = *get_relative_probability(std::array{ c1, c2 }, {}, number_of_players);
+
+					preflop_cards.push_back({ probablity, {i, j, false} });
+				}
+				else {
+					Card c1(static_cast<Card_value>(i), Card_suit::Hearts);
+					Card c2(static_cast<Card_value>(j), Card_suit::Hearts);
+
+					auto [probablity, _] = *get_relative_probability(std::array{ c1, c2 }, {}, number_of_players);
+
+					preflop_cards.push_back({ probablity, {i, j, true} });
+
+					c1 = Card(static_cast<Card_value>(i), Card_suit::Hearts);
+					c2 = Card(static_cast<Card_value>(j), Card_suit::Diamonds);
+
+					std::tie(probablity, _) = *get_relative_probability(std::array{ c1, c2 }, {}, number_of_players);
+
+					preflop_cards.push_back({ probablity, {i, j, false} });
+				}
+			}
+		}
+		
+		std::sort(preflop_cards.begin(), preflop_cards.end());
+
+		for (auto [probability, tuple] : preflop_cards) {
+			auto [rank_card1, rank_card2, suited] = tuple;
+			std::cout << static_cast<int>(number_of_players) << " players"
+				<< '\t' << static_cast<Card_value>(rank_card1) << static_cast<Card_value>(rank_card2)
+				<< '\t' << (suited ? "suited\t" : "outsuited")
+				<< '\t' << probability << '\n';
+		}
 	}
 };

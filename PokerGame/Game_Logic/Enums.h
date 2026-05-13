@@ -14,6 +14,13 @@ enum class Poker_stage : std::uint8_t {
     After_showdown,
 };
 
+enum class Player_type : std::uint8_t {
+    TAG,
+    TP,
+    LAG,
+    LP
+};
+
 enum class Player_action : std::uint8_t {
 	Fold,
 	Call,
@@ -50,6 +57,16 @@ constexpr const char* poker_stage_to_c_str(Poker_stage v) noexcept {
     }
 }
 
+constexpr const char* player_type_to_c_str(Player_type pt) noexcept {
+    switch (pt) {
+        case Player_type::TAG : return "TAG";
+        case Player_type::TP : return "TP";
+        case Player_type::LAG : return "LAG";
+        case Player_type::LP : return "LP";
+        default: return "?";
+    }
+}
+
 constexpr const char* player_action_to_c_str(Player_action v) noexcept {
     switch (v) {
         case Player_action::Fold : return "Fold";
@@ -81,6 +98,11 @@ constexpr const char* player_difficulty_to_c_str(Player_difficulty d) noexcept {
 
 inline std::ostream& operator<<(std::ostream& out, Poker_stage v) {
     out << poker_stage_to_c_str(v);
+    return out;
+}
+
+inline std::ostream& operator<<(std::ostream& out, Player_type v) {
+    out << player_type_to_c_str(v);
     return out;
 }
 

@@ -15,7 +15,7 @@ private:
  
     std::shared_ptr<tgui::Label> select_number_of_players_label = nullptr;
     std::shared_ptr<tgui::RadioButtonGroup> players_group = nullptr;
-    std::array<std::shared_ptr<tgui::RadioButton>, Probability_evaluator<>::MAX_PLAYERS - Probability_evaluator<>::MIN_PLAYERS + 1>
+    std::array<std::shared_ptr<tgui::RadioButton>, Probability_evaluator::MAX_PLAYERS - Probability_evaluator::MIN_PLAYERS + 1>
         array_of_buttons_for_selected_player{ nullptr };
 
     std::shared_ptr<tgui::Label> select_diff_of_players_label = nullptr;

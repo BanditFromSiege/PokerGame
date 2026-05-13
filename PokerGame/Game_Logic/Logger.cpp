@@ -96,9 +96,10 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
 
     result += get_time();
     result += "] ";
-    result += p.get_name();
+    result += p.get_name() + ' ';
+    result += player_type_to_c_str(p.get_type());
 
-    result += " {" + p.get_cards()[0].get_str() + ", " + p.get_cards()[1].get_str();
+    result += " {(" + p.get_cards()[0].get_str() + ", " + p.get_cards()[1].get_str() + ')';
 
     if (auto opt_absolute_probability = p.get_absolute_probability(); opt_absolute_probability) {
         result += std::format(", AP({:.2f})", *opt_absolute_probability);
@@ -118,7 +119,7 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
         result += ": Fold;";
     }
     else if (opt_move == Player_action::Call) {
-        result += ": Call " + std::to_string(p.get_current_bet());
+        result += ": Call " + std::to_string(p.get_current_player_bet());
         
         if (p.get_status() == Player_status::All_in) {
             result += " (ALL-IN);";
@@ -131,7 +132,7 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
         result += ": Check;";
     }
     else if (opt_move == Player_action::Raise) {
-        result += ": Raise " + std::to_string(p.get_current_bet());
+        result += ": Raise " + std::to_string(p.get_current_player_bet());
 
         if (p.get_status() == Player_status::All_in) {
             result += " (ALL-IN);";
@@ -176,12 +177,13 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
             + "/" + std::to_string(c_ref_manager.get_players().size()) + " players);\n";
 
         const auto& c_ref_players = c_ref_manager.get_players();
+        const auto& c_ref_table = c_ref_manager.get_table();
         auto diff = c_ref_players.front().get_difficulty();
 
         result += "Difficulty: " + std::string(player_difficulty_to_c_str(diff)) + ";\n";
 
-        result += "Blinds: " + std::to_string(c_ref_players.front().get_current_big_blind() / 2);
-        result += "/" + std::to_string(c_ref_players.front().get_current_big_blind()) + ";\n";
+        result += "Blinds: " + std::to_string(c_ref_table.get_current_small_blind());
+        result += "/" + std::to_string(c_ref_table.get_current_big_blind()) + ";\n";
 
         result += "PREFLOP";
         result += " Dealer - " + c_ref_manager.get_players()[c_ref_manager.get_dealer_player_id()].get_name() + ";\n\n";

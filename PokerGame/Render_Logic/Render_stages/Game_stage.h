@@ -46,8 +46,7 @@ private:
 
 	sf::Clock clock;
 
-	Probability_evaluator<std::execution::sequenced_policy> eval_seq;
-	Probability_evaluator<std::execution::parallel_policy> eval_par;
+	Probability_evaluator eval;
 
 	const float default_delay = 1.0f;
 	float delay = default_delay;

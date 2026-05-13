@@ -6,15 +6,21 @@ private:
 	std::vector<Card> table_cards = {};
 	std::vector<Pot> pots = {};
 
+	std::size_t initial_big_blind = 0;
+
+	std::size_t big_blind = 0;
 	std::size_t current_bet = 0;
 	std::size_t last_bet_diff = 0;
 	std::size_t sum_of_bets_on_current_stage = 0;
 
 public:
-	Table() noexcept;
+	Table(std::size_t money, std::size_t count_of_big_blinds) noexcept;
 
 	void add_card(Card c1) noexcept;
 	void add_to_sum_of_bets_on_current_stage(std::size_t bet) noexcept;
+
+	std::size_t get_current_big_blind() const noexcept;
+	std::size_t get_current_small_blind() const noexcept;
 
 	std::size_t get_current_bet() const noexcept;
 	std::size_t get_last_bet_diff() const noexcept;
@@ -27,6 +33,8 @@ public:
 	std::size_t get_sum_of_bets_on_current_stage() const noexcept;
 
 	void set_current_bet(std::size_t bet) noexcept;
+	void raise_blinds(double factor) noexcept;
+	void reset_big_blinds() noexcept;
 
 	void reset_sum_of_bets_on_current_stage() noexcept;
 	void clear() noexcept;

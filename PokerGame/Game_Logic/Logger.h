@@ -8,7 +8,7 @@ private:
 	const Poker_game_manager& c_ref_manager;
 
 	std::optional<Poker_stage> last_stage = std::nullopt;
-	std::array<bool, Probability_evaluator<>::MAX_PLAYERS> outed_players = { false };
+	std::array<bool, Probability_evaluator::MAX_PLAYERS> outed_players = { false };
 
 	std::string get_time() noexcept;
 	std::string get_data_time() noexcept;

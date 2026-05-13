@@ -77,7 +77,7 @@ Preparing_stage::Preparing_stage(
 	gui.add(players_group);
 
 	for (std::size_t i = 0; auto& radio_button : array_of_buttons_for_selected_player) {
-		int number = i + Probability_evaluator<>::MIN_PLAYERS;
+		int number = i + Probability_evaluator::MIN_PLAYERS;
 
 		radio_button = make_radio_button({ 100 + 65 * i, 400 }, 36, tgui::Color::White, std::to_string(number),
 			[this, number]() {

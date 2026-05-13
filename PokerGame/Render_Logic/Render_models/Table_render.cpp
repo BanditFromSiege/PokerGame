@@ -9,17 +9,25 @@ Table_render::Table_render(
 	, gui(gui)
 	, table_cards{ (gui), (gui), (gui), (gui), (gui) }
 {
+	current_bet_label = tgui::Label::create();
+	current_bet_label->setTextSize(20);
+	current_bet_label->setPosition(coords.first + 125, coords.second - 50);
+	current_bet_label->getRenderer()->setTextColor(tgui::Color::White);
+	current_bet_label->setVisible(false);
+
+	gui.add(current_bet_label);
+
 	blinds_label = tgui::Label::create();
 	blinds_label->setTextSize(20);
 	blinds_label->setPosition(coords.first + 125, coords.second - 25);
 	blinds_label->getRenderer()->setTextColor(tgui::Color::White);
 	blinds_label->setVisible(false);
 
-	const auto& c_ref_players = c_ref_manager.get_players();
+	const auto& c_ref_table = c_ref_manager.get_table();
 
 	std::string str = "Blinds: ";
-	str += std::to_string(c_ref_players.front().get_current_big_blind() / 2);
-	str += "/" + std::to_string(c_ref_players.front().get_current_big_blind());
+	str += std::to_string(c_ref_table.get_current_small_blind());
+	str += "/" + std::to_string(c_ref_table.get_current_big_blind());
 
 	blinds_label->setText(std::move(str));
 
@@ -44,12 +52,20 @@ Table_render::Table_render(
 }
 
 void Table_render::update_table() noexcept {
-	const auto& cards = c_ref_manager.get_table().get_cards();
-	const auto& players = c_ref_manager.get_players();
+	const auto& c_ref_table = c_ref_manager.get_table();
+	const auto& cards = c_ref_table.get_cards();
+
+	current_bet_label->setText("Current bet: " + std::to_string(c_ref_table.get_current_bet()));
+	current_bet_label->setVisible(true);
+
+	std::string str = "Blinds: ";
+	str += std::to_string(c_ref_table.get_current_small_blind());
+	str += "/" + std::to_string(c_ref_table.get_current_big_blind());
+
+	blinds_label->setText(std::move(str));
+	blinds_label->setVisible(true);
 
 	std::size_t i = 0;
-
-	blinds_label->setVisible(true);
 
 	for (; i < cards.size(); ++i) {
 		table_cards[i].set_new_card(cards[i]);
@@ -60,7 +76,8 @@ void Table_render::update_table() noexcept {
 		table_cards[i].set_visible(false);
 	}
 
-	const auto& pots = c_ref_manager.get_table().get_const_pots();
+	const auto& pots = c_ref_table.get_const_pots();
+	const auto& players = c_ref_manager.get_players();
 
 	i = 0;
 
@@ -89,6 +106,7 @@ void Table_render::update_table() noexcept {
 
 void Table_render::set_visible(bool flag) noexcept {
 	if (!flag) {
+		current_bet_label->setVisible(false);
 		blinds_label->setVisible(false);
 
 		for (auto& label : pots_label) {
@@ -100,8 +118,10 @@ void Table_render::set_visible(bool flag) noexcept {
 		}
 	}
 	else {
-		const auto& pots = c_ref_manager.get_table().get_const_pots();
+		const auto& c_ref_table = c_ref_manager.get_table();
+		const auto& pots = c_ref_table.get_const_pots();
 
+		current_bet_label->setVisible(c_ref_table.get_current_bet() > 0);
 		blinds_label->setVisible(true);
 
 		for (std::size_t i = 0; i < pots.size(); ++i) {
@@ -117,6 +137,7 @@ void Table_render::set_visible(bool flag) noexcept {
 }
 
 void Table_render::remove_from_gui() noexcept {
+	gui.remove(current_bet_label);
 	gui.remove(blinds_label);
 
 	for (auto& label : pots_label) {

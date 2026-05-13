@@ -14,8 +14,7 @@ private:
 	
 	std::vector<Player>& players;
 	std::mt19937_64& rng;
-	Probability_evaluator<std::execution::sequenced_policy>& evaluator_sequenced;
-	Probability_evaluator<std::execution::parallel_policy>& evaluator_parallel;
+	Probability_evaluator evaluator;
 
 	std::size_t number_of_rounds = 0;
 
@@ -31,7 +30,6 @@ private:
 	std::uint8_t current_player_index_id = 0;
 	std::uint8_t current_bank_index_id = 0;
 
-	bool use_evaluator_sequenced = true;
 	bool is_game_run = true;
 
 	void rotate_players(std::uint8_t new_index) noexcept;
@@ -61,8 +59,7 @@ public:
 	Poker_game_manager(
 		std::mt19937_64& rng,
 		std::vector<Player>& players,
-		Probability_evaluator<std::execution::sequenced_policy>& eval_seq,
-		Probability_evaluator<std::execution::parallel_policy>& eval_par
+		Probability_evaluator& eval
 	) noexcept;
 
 	const Table& get_table() const noexcept;

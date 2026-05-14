@@ -86,11 +86,11 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
         if (bet != 0 && (*opt_move == Player_action::Call || *opt_move == Player_action::Raise || *opt_move == Player_action::None)) {
             str += ' ' + std::to_string(bet);
 
-            if (player.get_money() == 0) {
+            if (player.is_all_in()) {
                 str += " (ALL-IN)";
             }
         }
-        else if (bet == 0 && player.get_money() == 0) {
+        else if (player.is_all_in() && *opt_move == Player_action::None) {
             str += " (ALL-IN)";
         }
 
@@ -99,20 +99,19 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
     else if (player.get_current_player_bet() != 0) {
         player_action_and_bet_label->setVisible(true);
 
-        auto bet = player.get_current_player_bet();
+        std::string str = std::to_string(player.get_current_player_bet());
 
-        std::string str;
-
-        str += std::to_string(bet);
-
-        if (player.get_money() == 0) {
+        if (player.is_all_in()) {
             str += " (ALL-IN)";
         }
 
         player_action_and_bet_label->setText(std::move(str));
     }
+    else if (player.is_all_in()) {
+        player_action_and_bet_label->setVisible(true);
+        player_action_and_bet_label->setText("(ALL-IN)");
+    }
     else {
-        player_action_and_bet_label->setText("");
         player_action_and_bet_label->setVisible(false);
     }
 
@@ -193,7 +192,7 @@ void Player_render::set_visible(bool flag) noexcept {
         }
         else {
             player_action_and_bet_label->setVisible(
-                player.get_last_move().has_value() || player.get_current_player_bet() > 0 || player.get_money() == 0
+                player.get_last_move().has_value() || player.get_current_player_bet() > 0 || player.is_all_in()
             );
 
             probabilities_label->setVisible(

@@ -414,12 +414,6 @@ void Poker_game_manager::perform_player_step() noexcept {
 		Player& p = players[players_index[current_player_index_id]];
 
 		current_player_id = p.get_id();
-
-		if (p.is_all_in() || (p.is_active() && table.get_current_bet() == 0 && count_all_in_players == count_active_players - 1)) {
-			p.set_last_move(Player_action::None);
-			++current_player_index_id;
-			return;
-		}
 		
 		auto [move, new_bet] = p.make_decision(
 			rng,

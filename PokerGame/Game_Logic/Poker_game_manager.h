@@ -1,37 +1,39 @@
 #pragma once
 #include "Logic_models/Table.h"
-#include <unordered_set>
 
 class Poker_game_manager final {
 private:
+	static constexpr std::uint8_t round_per_blind_increase = 10;
+
 	Poker_deck deck;
 	Table table;
-
-	std::unordered_set<std::uint8_t> players_ids_in_game{};
 
 	std::vector<std::uint8_t> players_index{};
 	std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>> winners_and_rewards{};
 	
 	std::vector<Player>& players;
 	std::mt19937_64& rng;
-	Probability_evaluator<std::execution::sequenced_policy>& evaluator_sequenced;
-	Probability_evaluator<std::execution::parallel_policy>& evaluator_parallel;
+
+	std::array<bool, Probability_evaluator::MAX_PLAYERS> arr_players_ids_in_game = { false };
 
 	std::size_t number_of_rounds = 0;
 
 	std::optional<std::uint8_t> current_player_id = std::nullopt;
+
+	Probability_evaluator evaluator;
 
 	Poker_stage stage = Poker_stage::Preparation_preflop;
 
 	std::uint8_t dealer_id = 0;
 	std::uint8_t small_blind_id = 0;
 
-	std::uint8_t active_players = 0;
+	std::uint8_t count_active_players = 0;
+	std::uint8_t count_all_in_players = 0;
+	std::uint8_t count_players_in_game = 0;
 
 	std::uint8_t current_player_index_id = 0;
 	std::uint8_t current_bank_index_id = 0;
 
-	bool use_evaluator_sequenced = true;
 	bool is_game_run = true;
 
 	void rotate_players(std::uint8_t new_index) noexcept;
@@ -61,16 +63,20 @@ public:
 	Poker_game_manager(
 		std::mt19937_64& rng,
 		std::vector<Player>& players,
-		Probability_evaluator<std::execution::sequenced_policy>& eval_seq,
-		Probability_evaluator<std::execution::parallel_policy>& eval_par
+		Probability_evaluator& eval
 	) noexcept;
 
 	const Table& get_table() const noexcept;
 	const std::vector<Player>& get_players() const noexcept;
 	Poker_stage get_current_stage() const noexcept;
+
 	const std::optional<std::uint8_t> get_current_player_id() const noexcept;
 	const std::uint8_t get_dealer_player_id() const noexcept;
-	std::uint8_t get_active_players() const noexcept;
+
+	std::uint8_t get_count_active_players() const noexcept;
+	std::uint8_t get_count_all_in_players() const noexcept;
+	std::uint8_t get_count_players_in_game() const noexcept;
+
 	auto get_winners_and_rewards() const noexcept
 		-> const std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>>&;
 

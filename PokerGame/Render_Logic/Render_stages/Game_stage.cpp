@@ -11,7 +11,7 @@ void Game_stage::create_players() noexcept {
         name += std::to_string(i);
 
         players.emplace_back(Player{
-            std::move(name), i, 1000, current_diff
+            rng, std::move(name), i, current_initial_money, current_diff
         });
     }
 
@@ -84,47 +84,12 @@ void Game_stage::reset_game() noexcept {
     clock.restart();
 }
 
-std::shared_ptr<tgui::Label> Game_stage::make_label(
-    std::pair<std::uint16_t, std::uint16_t> coords,
-    std::uint8_t text_size,
-    tgui::Color text_color,
-    const std::string& text
-) noexcept
-{
-    std::shared_ptr<tgui::Label> label = tgui::Label::create();
-    label->setPosition({ coords.first, coords.second });
-    label->setTextSize(text_size);
-    label->getRenderer()->setTextColor(text_color);
-    label->setText(text);
-
-    gui.add(label);
-
-    return label;
-}
-
-std::shared_ptr<tgui::Button> Game_stage::make_button(
-    std::pair<std::uint16_t, std::uint16_t> coords,
-    std::uint8_t text_size,
-    const std::string& text,
-    std::function<void()> func
-) noexcept
-{
-    std::shared_ptr<tgui::Button> button = tgui::Button::create();
-    button->setPosition({ coords.first, coords.second });
-    button->setTextSize(text_size);
-    button->setText(text);
-    button->onPress(func);
-
-    gui.add(button);
-
-    return button;
-}
-
 Game_stage::Game_stage(
     tgui::Gui& gui,
     Render_stages& stage,
     Render_color& color,
     Player_difficulty& diff,
+    std::size_t& initial_money,
     bool& execution_mode_sequenced,
     bool& new_game,
     bool& game_is_running,
@@ -136,6 +101,7 @@ Game_stage::Game_stage(
     , current_stage(stage)
     , current_color(color)
     , current_diff(diff)
+    , current_initial_money(initial_money)
     , execution_mode_sequenced(execution_mode_sequenced)
     , create_new_game(new_game)
     , current_game_is_running(game_is_running)
@@ -148,16 +114,16 @@ Game_stage::Game_stage(
     center_x = coords.first / 2.f;
     center_y = coords.second / 2.f;
 
-    paused_label = make_label({ center_x - 100, center_y - 180 }, 56, tgui::Color::Red, "Paused");
+    paused_label = Texture_manager::make_label(gui, { center_x - 110, 5 }, 56, tgui::Color::Red, "Paused");
     paused_label->setVisible(false);
 
-    round_label = make_label({ 5, 5 }, 56, tgui::Color::White, "Round: 1");
+    round_label = Texture_manager::make_label(gui, { 5, 5 }, 56, tgui::Color::White, "Round: 1");
     round_label->setVisible(true);
 
-    win_label = make_label({ center_x - 250, center_y - 150 }, 64, tgui::Color::White, "");
+    win_label = Texture_manager::make_label(gui, { center_x - 250, center_y - 150 }, 64, tgui::Color::White, "");
     win_label->setVisible(false);
 
-    win_button_yes = make_button({ center_x - 200, center_y + 20 }, 64, "Yes",
+    win_button_yes = Texture_manager::make_button(gui, { center_x - 200, center_y + 20 }, 64, "Yes",
         [this](){
             current_game_is_running = true;
             reset_game();
@@ -165,7 +131,7 @@ Game_stage::Game_stage(
     );
     win_button_yes->setVisible(false);
 
-    win_button_no = make_button({ center_x, center_y + 20 }, 64, "No",
+    win_button_no = Texture_manager::make_button(gui, { center_x, center_y + 20 }, 64, "No",
         [this]() {
             current_game_is_running = false;
             current_stage = Render_stages::Menu;
@@ -173,14 +139,14 @@ Game_stage::Game_stage(
     );
     win_button_no->setVisible(false);
 
-    menu_button = make_button({ 20, 105 }, 48, "Menu",
+    menu_button = Texture_manager::make_button(gui, { 20, 105 }, 48, "Menu",
         [this]() {
             paused = true;
             current_stage = Render_stages::Menu;
         }
     );
 
-    pause_button = make_button({ 20, 205 }, 48, "Pause",
+    pause_button = Texture_manager::make_button(gui, { 20, 205 }, 48, "Pause",
         [this]() {
             paused = !paused;
             paused_label->setVisible(paused);
@@ -199,7 +165,8 @@ Game_stage::Game_stage(
     menu_button->setWidth(maxWidth);
     pause_button->setWidth(maxWidth);
 
-    delay_label = make_label({ center_x - 300, 975 }, 36, tgui::Color::White, std::format("{:.1f}", delay));
+    delay_label
+        = Texture_manager::make_label(gui, { center_x - 300, 975 }, 36, tgui::Color::White, std::format("{:.1f}", delay));
 
     delay_slider = tgui::Slider::create();
     delay_slider->setPosition({ center_x - 200, 980 });
@@ -263,9 +230,9 @@ void Game_stage::update() noexcept {
 
         create_players();
 
-        ptr_manager = std::make_unique<Poker_game_manager>(rng, players, eval_seq, eval_par);
+        ptr_manager = std::make_unique<Poker_game_manager>(rng, players, eval);
         ptr_table_render = std::make_unique<Table_render>(gui, *ptr_manager, std::pair{ center_x - 190, center_y - 100 });
-        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1300, 20 });
+        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1100, 20 });
         ptr_logger = std::make_unique<Logger>(*ptr_manager);
 
         console_logger->setText("");

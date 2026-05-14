@@ -2,14 +2,49 @@
 
 Player::Player() noexcept = default;
 
-Player::Player(std::string name, std::uint8_t id, std::size_t money, Player_difficulty d) noexcept
+Player::Player(
+	std::mt19937_64& rng,
+	std::string name,
+	std::uint8_t id,
+	std::size_t money,
+	Player_difficulty d
+) noexcept
 	: name(std::move(name))
 	, id(id)
 	, initial_money(money)
 	, money(money)
-	, current_big_blind(money / count_of_big_blinds)
 	, difficulty(d) 
-{}
+{
+	std::uniform_int_distribution<> random_type(0, 3);
+
+	std::uniform_real_distribution<> aggresive(0.0, 0.1);
+	std::uniform_real_distribution<> passive(-0.1, 0.0);
+	std::uniform_real_distribution<> taight_parrametr(0.0, 0.1);
+	std::uniform_real_distribution<> loose_parrametr(-0.1, 0.0);
+
+	auto index = random_type(rng);
+
+	if (index == 0) {
+		type = Player_type::TAG;
+		tightness = taight_parrametr(rng);
+		aggression = aggresive(rng);
+	}
+	else if (index == 1) {
+		type = Player_type::TP;
+		tightness = taight_parrametr(rng);
+		aggression = passive(rng);
+	}
+	else if (index == 2) {
+		type = Player_type::LAG;
+		tightness = loose_parrametr(rng);
+		aggression = aggresive(rng);
+	}
+	else if (index == 3) {
+		type = Player_type::LP;
+		tightness = loose_parrametr(rng);
+		aggression = passive(rng);
+	}
+}
 
 std::string Player::get_name() const noexcept {
 	return name;
@@ -27,20 +62,20 @@ std::optional<double> Player::get_absolute_probability() const noexcept {
 	return absolute_probability;
 }
 
+std::size_t Player::get_initial_money() const noexcept {
+	return initial_money;
+}
+
 std::size_t Player::get_money() const noexcept {
 	return money;
 }
 
-std::size_t Player::get_current_bet() const noexcept {
-	return current_bet;
+std::size_t Player::get_current_player_bet() const noexcept {
+	return current_player_bet;
 }
 
 std::size_t Player::get_sum_of_bets() const noexcept {
 	return sum_of_bets;
-}
-
-std::size_t Player::get_current_big_blind() const noexcept {
-	return current_big_blind;
 }
 
 std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> Player::get_cards() const noexcept {
@@ -65,6 +100,10 @@ Player_difficulty Player::get_difficulty() const noexcept {
 
 Player_status Player::get_status() const noexcept {
 	return status;
+}
+
+Player_type Player::get_type() const noexcept {
+	return type;
 }
 
 bool Player::is_active() const noexcept {
@@ -99,8 +138,8 @@ void Player::set_absolute_probability(std::optional<double> probability) noexcep
 	absolute_probability = probability;
 }
 
-void Player::set_current_bet(std::size_t bet) noexcept {
-	current_bet = bet;
+void Player::set_current_player_bet(std::size_t bet) noexcept {
+	current_player_bet = bet;
 }
 
 void Player::set_sum_of_bets(std::size_t bet) noexcept {
@@ -132,7 +171,7 @@ void Player::set_last_move(std::optional<Player_action> new_move) noexcept {
 
 void Player::make_fold() noexcept {
 	status = Player_status::Folded;
-	current_bet = 0;
+	current_player_bet = 0;
 	absolute_probability = std::nullopt;
 }
 
@@ -140,8 +179,8 @@ void Player::get_win(std::size_t share) noexcept {
 	money += share;
 }
 
-void Player::reset_for_new_hand() noexcept {
-	current_bet = 0;
+void Player::reset_for_new_round() noexcept {
+	current_player_bet = 0;
 	sum_of_bets = 0;
 
 	combination = std::nullopt;
@@ -151,24 +190,151 @@ void Player::reset_for_new_hand() noexcept {
 }
 
 void Player::reset_for_new_game() noexcept {
-	reset_for_new_hand();
+	reset_for_new_round();
 	money = initial_money;
 }
 
 std::size_t Player::make_bet_or_check(std::size_t bet) noexcept {
-	std::size_t diff = bet - current_bet;
+	std::size_t diff = bet - current_player_bet;
 
 	if (diff >= money) {
 		diff = money;
 		status = Player_status::All_in;
-		current_bet += diff;
+		current_player_bet += diff;
 	}
 	else {
-		current_bet = bet;
+		current_player_bet = bet;
 	}
 
 	money -= diff;
 	sum_of_bets += diff;
 	
 	return diff;
+}
+
+std::pair<Player_action, std::size_t> Player::make_decision(
+	std::mt19937_64& rng,
+	Probability_evaluator& evaluator,
+	std::span<const Card> table_cards,
+	std::span<const Player> players,
+	std::size_t bank_with_all_current_bets_on_street,
+	std::size_t table_current_bet,
+	std::size_t table_current_big_blind,
+	std::size_t table_last_bet_diff
+) noexcept {
+	const std::size_t bet_for_call = table_current_bet - current_player_bet;
+
+	const std::uint8_t count_of_active_players = std::count_if(players.begin(), players.end(),
+		[](const Player& p) {
+			return p.is_active() || p.is_all_in();
+		}
+	);
+
+	std::size_t max_bet = 0;
+
+	for (const Player& p : players) {
+		if (p.get_id() != id && p.get_money() != 0 && (p.is_active() || p.is_all_in())) {
+			max_bet = std::max(max_bet, p.get_money());
+		}
+	}
+
+	max_bet = std::min(max_bet, money);
+
+	auto [win_prob, table_prob] = *evaluator.get_relative_probability(
+		this->get_cards(),
+		table_cards,
+		count_of_active_players);
+
+	std::uniform_real_distribution<double> noise(
+		-0.05 * static_cast<double>(difficulty), 0.05 * static_cast<double>(difficulty)
+	);
+
+	win_prob += noise(rng);
+	win_prob -= tightness;
+
+	win_prob = std::clamp(win_prob, 0.0, 1.0);
+
+	relative_probability = win_prob;
+
+	const double multiway_factor
+		= static_cast<double>(count_of_active_players - 1)
+		/ static_cast<double>(Probability_evaluator::MAX_PLAYERS);
+
+	const double table_aggression_factor = 1.0 - table_prob * multiway_factor;
+
+	const double personality_risk_factor = std::clamp(1.0 - aggression, 0.5, 1.5);
+
+	const double final_risk_factor = table_aggression_factor * personality_risk_factor;
+
+	std::vector<std::size_t> bets;
+
+	double max_ev = 0.0;
+
+	std::size_t potential_bet = bet_for_call;
+
+	bool begin_raise_bet = true;
+
+	if (table_last_bet_diff < table_current_big_blind) {
+		table_last_bet_diff = table_current_big_blind;
+	}
+
+	do {
+		const double ev =
+			(win_prob * (bank_with_all_current_bets_on_street + potential_bet))
+			- (potential_bet * (1 - win_prob)) * final_risk_factor;
+
+		if (ev > max_ev) {
+			max_ev = ev;
+			bets.push_back(potential_bet);
+		}
+		else {
+			break;
+		}
+
+		if (begin_raise_bet) {
+			potential_bet += table_last_bet_diff;
+			begin_raise_bet = false;
+		}
+		else {
+			potential_bet += table_current_big_blind;
+		}
+
+	} while (potential_bet <= max_bet);
+
+	std::size_t new_bet = 0;
+
+	if (bets.size() == 1) {
+		new_bet = bets.front();
+	}
+	else if (bets.size() > 1) {
+		std::vector<std::size_t> weights;
+		weights.reserve(bets.size());
+
+		for (std::size_t i = bets.size(); i > 0; --i) {
+			weights.push_back(i);
+		}
+
+		std::discrete_distribution<> random_bet_index(weights.begin(), weights.end());
+		new_bet = bets[random_bet_index(rng)];
+	}
+
+	if (bet_for_call == 0) {
+		if (new_bet > 0) {
+			return { Player_action::Raise, new_bet + current_player_bet };
+		}
+		else {
+			return { Player_action::Check, 0 };
+		}
+	}
+	else {
+		if (new_bet > bet_for_call) {
+			return { Player_action::Raise, new_bet + current_player_bet };
+		}
+		else if (new_bet == bet_for_call) {
+			return { Player_action::Call, table_current_bet };
+		}
+		else {
+			return { Player_action::Fold, 0 };
+		}
+	}
 }

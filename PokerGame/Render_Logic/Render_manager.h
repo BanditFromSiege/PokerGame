@@ -11,6 +11,7 @@ private:
 	Render_stages current_stage = Render_stages::Exit;
 	Render_color current_color = Render_color::Red;
 	Player_difficulty current_diff = Player_difficulty::Easy;
+	std::size_t current_initial_money = 1000;
 
 	std::uint8_t selected_players = 4;
 

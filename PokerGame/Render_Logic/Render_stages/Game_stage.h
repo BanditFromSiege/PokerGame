@@ -13,6 +13,7 @@ private:
 	Render_stages& current_stage;
 	Render_color& current_color;
 	Player_difficulty& current_diff;
+	std::size_t& current_initial_money;
 
 	bool& execution_mode_sequenced;
 	bool& create_new_game;
@@ -46,8 +47,7 @@ private:
 
 	sf::Clock clock;
 
-	Probability_evaluator<std::execution::sequenced_policy> eval_seq;
-	Probability_evaluator<std::execution::parallel_policy> eval_par;
+	Probability_evaluator eval;
 
 	const float default_delay = 1.0f;
 	float delay = default_delay;
@@ -63,22 +63,7 @@ private:
 	std::uint8_t dealer_id = 0;
 
 	void create_players() noexcept;
-
 	void reset_game() noexcept;
-
-	std::shared_ptr<tgui::Label> make_label(
-		std::pair<std::uint16_t, std::uint16_t> coords,
-		std::uint8_t text_size,
-		tgui::Color text_color,
-		const std::string& text
-	) noexcept;
-
-	std::shared_ptr<tgui::Button> make_button(
-		std::pair<std::uint16_t, std::uint16_t> coords,
-		std::uint8_t text_size,
-		const std::string& text,
-		std::function<void()> func
-	) noexcept;
 
 public:
 	Game_stage(
@@ -86,6 +71,7 @@ public:
 		Render_stages& stage,
 		Render_color& color,
 		Player_difficulty& diff,
+		std::size_t& initial_money,
 		bool& execution_mode_sequenced,
 		bool& new_game,
 		bool& game_is_running,

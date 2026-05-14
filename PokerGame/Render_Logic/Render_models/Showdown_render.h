@@ -6,7 +6,7 @@ private:
 	tgui::Gui& gui;
 
 	const Poker_game_manager& c_ref_manager;
-	std::array<std::shared_ptr<tgui::Label>, Probability_evaluator<>::MAX_PLAYERS - 1> winners_and_rewards_label
+	std::array<std::shared_ptr<tgui::Label>, Probability_evaluator::MAX_PLAYERS - 1> winners_and_rewards_label
 		= { nullptr };
 
 public:

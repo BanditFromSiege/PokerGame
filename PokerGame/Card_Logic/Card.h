@@ -19,6 +19,9 @@ public:
 	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_TURN = 4;
 	static constexpr std::uint8_t COUNT_OF_TABLE_CARDS_ON_RIVER = 5;
 
+	static constexpr std::uint8_t COUNT_OF_CARD_VALUES = 13;
+	static constexpr std::uint8_t COUNT_OF_CARD_SUITS = 4;
+
 	constexpr Card() noexcept = default;
 
 	constexpr Card(Card_value rank, Card_suit suit) noexcept : suit(suit), rank(rank) {}

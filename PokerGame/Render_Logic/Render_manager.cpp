@@ -16,6 +16,7 @@ Render_manager::Render_manager(std::pair<std::uint16_t, std::uint16_t> coords) n
         stage,
         current_color,
         current_diff,
+        current_initial_money,
         execution_mode_sequenced,
         create_new_game,
         game_is_running,
@@ -33,6 +34,7 @@ Render_manager::Render_manager(std::pair<std::uint16_t, std::uint16_t> coords) n
         stage,
         current_diff,
         selected_players,
+        current_initial_money,
         create_new_game,
         game_is_running
     );

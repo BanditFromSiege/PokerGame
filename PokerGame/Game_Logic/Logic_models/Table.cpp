@@ -1,6 +1,6 @@
 #include "Table.h"
 
-Table::Table() noexcept = default;
+Table::Table() noexcept : big_blind(initial_big_blind) {}
 
 void Table::add_card(Card c1) noexcept {
 	table_cards.push_back(c1);
@@ -8,6 +8,14 @@ void Table::add_card(Card c1) noexcept {
 
 void Table::add_to_sum_of_bets_on_current_stage(std::size_t bet) noexcept {
 	sum_of_bets_on_current_stage += bet;
+}
+
+std::size_t Table::get_current_big_blind() const noexcept {
+	return big_blind;
+}
+
+std::size_t Table::get_current_small_blind() const noexcept {
+	return big_blind / 2;
 }
 
 std::size_t Table::get_current_bet() const noexcept {
@@ -55,6 +63,14 @@ void Table::set_current_bet(std::size_t bet) noexcept {
 	}
 	
 	current_bet = bet;
+}
+
+void Table::raise_blinds() noexcept {
+	big_blind *= blind_growth_factor;
+}
+
+void Table::reset_big_blinds() noexcept {
+	big_blind = initial_big_blind;
 }
 
 void Table::reset_sum_of_bets_on_current_stage() noexcept {

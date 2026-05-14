@@ -240,10 +240,6 @@ std::pair<Player_action, std::size_t> Player::make_decision(
 
 	max_bet = std::min(max_bet, money);
 
-	if (max_bet == 0) {
-		return { Player_action::None, 0 };
-	}
-
 	auto [win_prob, table_prob] = *evaluator.get_relative_probability(
 		this->get_cards(),
 		table_cards,

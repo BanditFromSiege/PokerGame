@@ -65,8 +65,16 @@ void Poker_game_manager::make_initial_bets_for_2_players(std::uint8_t& current_p
 	std::size_t sb_bet
 		= players[small_blind_position].make_bet_or_check(small_blind);
 
+	if (players[small_blind_position].is_all_in()) {
+		++count_all_in_players;
+	}
+
 	std::size_t bb_bet
 		= players[big_blind_position].make_bet_or_check(big_blind);
+
+	if (players[big_blind_position].is_all_in()) {
+		++count_all_in_players;
+	}
 
 	table.set_current_bet(big_blind);
 
@@ -86,8 +94,16 @@ void Poker_game_manager::make_initial_bets_for_3_players(std::uint8_t& current_p
 	std::size_t sb_bet
 		= players[small_blind_position].make_bet_or_check(small_blind);
 
+	if (players[small_blind_position].is_all_in()) {
+		++count_all_in_players;
+	}
+
 	std::size_t bb_bet
 		= players[big_blind_position].make_bet_or_check(big_blind);
+
+	if (players[big_blind_position].is_all_in()) {
+		++count_all_in_players;
+	}
 
 	table.set_current_bet(big_blind);
 
@@ -108,8 +124,16 @@ void Poker_game_manager::make_initial_bets_for_more_then_3_players(std::uint8_t&
 	std::size_t sb_bet
 		= players[small_blind_position].make_bet_or_check(small_blind);
 
+	if (players[small_blind_position].is_all_in()) {
+		++count_all_in_players;
+	}
+
 	std::size_t bb_bet
 		= players[big_blind_position].make_bet_or_check(big_blind);
+
+	if (players[big_blind_position].is_all_in()) {
+		++count_all_in_players;
+	}
 
 	table.set_current_bet(big_blind);
 
@@ -311,6 +335,10 @@ void Poker_game_manager::add_bets_to_pots() noexcept {
 
 			players[winner_id].get_win(bank);
 
+			if (players[winner_id].is_all_in()) {
+				players[winner_id].set_status(Player_status::Active);
+			}
+
 			if (bank < sum_of_bets) {
 				players[winner_id].set_sum_of_bets(sum_of_bets - bank);
 			}
@@ -414,6 +442,14 @@ void Poker_game_manager::perform_player_step() noexcept {
 		Player& p = players[players_index[current_player_index_id]];
 
 		current_player_id = p.get_id();
+
+		if (p.is_all_in() || (p.is_active() && p.get_current_player_bet() >= table.get_current_bet()
+			&& count_all_in_players == count_active_players - 1))
+		{
+			p.set_last_move(Player_action::None);
+			++current_player_index_id;
+			return;
+		}
 		
 		auto [move, new_bet] = p.make_decision(
 			rng,

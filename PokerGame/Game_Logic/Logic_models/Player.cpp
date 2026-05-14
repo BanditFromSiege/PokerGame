@@ -62,6 +62,10 @@ std::optional<double> Player::get_absolute_probability() const noexcept {
 	return absolute_probability;
 }
 
+std::size_t Player::get_initial_money() const noexcept {
+	return initial_money;
+}
+
 std::size_t Player::get_money() const noexcept {
 	return money;
 }
@@ -316,7 +320,7 @@ std::pair<Player_action, std::size_t> Player::make_decision(
 
 	if (bet_for_call == 0) {
 		if (new_bet > 0) {
-			return { Player_action::Raise, new_bet + table_current_bet };
+			return { Player_action::Raise, new_bet + current_player_bet };
 		}
 		else {
 			return { Player_action::Check, 0 };

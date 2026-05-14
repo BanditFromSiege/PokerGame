@@ -141,6 +141,16 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
             result += ';';
         }
     }
+    else if (opt_move == Player_action::None) {
+        result += ": None";
+
+        if (p.get_status() == Player_status::All_in) {
+            result += " (ALL-IN);";
+        }
+        else {
+            result += ';';
+        }
+    }
 
     result += '\n';
 
@@ -173,14 +183,17 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
         }
 
         result += "\nRound #" + std::to_string(rounds);
-        result += " (" + std::to_string(c_ref_manager.get_active_players())
+        result += " (" + std::to_string(c_ref_manager.get_count_active_players())
             + "/" + std::to_string(c_ref_manager.get_players().size()) + " players);\n";
 
         const auto& c_ref_players = c_ref_manager.get_players();
         const auto& c_ref_table = c_ref_manager.get_table();
         auto diff = c_ref_players.front().get_difficulty();
+        auto initial_money = c_ref_players.front().get_initial_money();
 
         result += "Difficulty: " + std::string(player_difficulty_to_c_str(diff)) + ";\n";
+
+        result += "Initial stack: " + std::to_string(initial_money) + ";\n";
 
         result += "Blinds: " + std::to_string(c_ref_table.get_current_small_blind());
         result += "/" + std::to_string(c_ref_table.get_current_big_blind()) + ";\n";

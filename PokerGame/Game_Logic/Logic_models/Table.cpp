@@ -1,11 +1,6 @@
 #include "Table.h"
 
-Table::Table(std::size_t money, std::size_t count_of_big_blinds) noexcept {
-	count_of_big_blinds = std::clamp(count_of_big_blinds, std::size_t(5), money);
-
-	initial_big_blind = money / count_of_big_blinds;
-	big_blind = initial_big_blind;
-}
+Table::Table() noexcept : big_blind(initial_big_blind) {}
 
 void Table::add_card(Card c1) noexcept {
 	table_cards.push_back(c1);
@@ -70,8 +65,8 @@ void Table::set_current_bet(std::size_t bet) noexcept {
 	current_bet = bet;
 }
 
-void Table::raise_blinds(double factor) noexcept {
-	big_blind *= factor;
+void Table::raise_blinds() noexcept {
+	big_blind *= blind_growth_factor;
 }
 
 void Table::reset_big_blinds() noexcept {

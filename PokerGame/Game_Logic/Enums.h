@@ -25,7 +25,8 @@ enum class Player_action : std::uint8_t {
 	Fold,
 	Call,
 	Check,
-	Raise
+	Raise,
+    None
 };
 
 enum class Player_status : std::uint8_t {
@@ -73,6 +74,7 @@ constexpr const char* player_action_to_c_str(Player_action v) noexcept {
         case Player_action::Call : return "Call";
         case Player_action::Check : return "Check";
         case Player_action::Raise : return "Raise";
+        case Player_action::None : return "None";
         default : return "?";
     }
 }

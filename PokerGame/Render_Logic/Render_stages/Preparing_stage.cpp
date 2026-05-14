@@ -5,6 +5,7 @@ Preparing_stage::Preparing_stage(
 	Render_stages& stage,
 	Player_difficulty& diff,
 	std::uint8_t& number_of_players,
+	std::size_t& initial_money,
 	bool& new_game,
 	bool& game_is_running
 ) noexcept
@@ -12,6 +13,7 @@ Preparing_stage::Preparing_stage(
 	, current_stage(stage)
 	, current_diff(diff)
 	, selected_players(number_of_players)
+	, current_initial_money(initial_money)
 	, create_new_game(new_game)
 	, current_game_is_running(game_is_running)
 {
@@ -96,11 +98,47 @@ Preparing_stage::Preparing_stage(
 	spectator_mode_radio_button->setChecked(true);
 	gui.add(spectator_mode_radio_button);
 
+	choice_player_stack_label
+		= Texture_manager::make_label(gui, { 900, 600 }, 48, tgui::Color::White, "Select initial player stack");
+
+	short_stack_radio_button = Texture_manager::make_radio_button({ 900, 700 }, 36, tgui::Color::White, "Short (500)",
+		[this](){
+			current_initial_money = 500;
+		}
+	);
+
+	normal_stack_radio_button = Texture_manager::make_radio_button({ 900, 750 }, 36, tgui::Color::White, "Normal (1000)",
+		[this]() {
+			current_initial_money = 1000;
+		}
+	);
+
+	long_stack_radio_button = Texture_manager::make_radio_button({ 900, 800 }, 36, tgui::Color::White, "Long (2000)",
+		[this]() {
+			current_initial_money = 2000;
+		}
+	);
+
+	player_stack_group = tgui::RadioButtonGroup::create();
+	gui.add(player_stack_group);
+	player_stack_group->add(short_stack_radio_button);
+	player_stack_group->add(normal_stack_radio_button);
+	player_stack_group->add(long_stack_radio_button);
+
+	if (current_initial_money == 500) {
+		short_stack_radio_button->setChecked(true);
+	}
+	else if (current_initial_money == 1000) {
+		normal_stack_radio_button->setChecked(true);
+	}
+	else if (current_initial_money == 2000) {
+		long_stack_radio_button->setChecked(true);
+	}
+
 	create_game_button = Texture_manager::make_button(gui, { 100, 800 }, 48, "Create game",
 		[this]() {
 			create_new_game = true;
 			current_game_is_running = true;
-
 			current_stage = Render_stages::Game;
 		}
 	);
@@ -143,6 +181,12 @@ void Preparing_stage::set_visible(bool flag) noexcept {
 
 	choice_game_mode_label->setVisible(flag);
 	spectator_mode_radio_button->setVisible(flag);
+
+	choice_player_stack_label->setVisible(flag);
+	player_stack_group->setVisible(flag);
+	short_stack_radio_button->setVisible(flag);
+	normal_stack_radio_button->setVisible(flag);
+	long_stack_radio_button->setVisible(flag);
 
 	back_button->setVisible(flag);
 	create_game_button->setVisible(flag);

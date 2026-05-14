@@ -13,6 +13,7 @@ private:
 	Render_stages& current_stage;
 	Render_color& current_color;
 	Player_difficulty& current_diff;
+	std::size_t& current_initial_money;
 
 	bool& execution_mode_sequenced;
 	bool& create_new_game;
@@ -70,6 +71,7 @@ public:
 		Render_stages& stage,
 		Render_color& color,
 		Player_difficulty& diff,
+		std::size_t& initial_money,
 		bool& execution_mode_sequenced,
 		bool& new_game,
 		bool& game_is_running,

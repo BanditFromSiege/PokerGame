@@ -7,6 +7,7 @@ void Poker_stability_test(
     std::uint8_t number_of_players,
     Player_difficulty d,
     std::size_t number_of_iterations,
+    std::size_t initial_money,
     bool out_in_console = false
 ) {
     std::mt19937_64 rng{ std::random_device{}() };
@@ -18,6 +19,10 @@ void Poker_stability_test(
         Probability_evaluator::MIN_PLAYERS,
         Probability_evaluator::MAX_PLAYERS
     );
+
+    if (initial_money != 500 && initial_money != 1000 && initial_money != 2000) {
+        initial_money = 1000;
+    }
     
     for (std::size_t i = 0; i < number_of_iterations; ++i) {
         std::cout << i + 1 << " test\n";
@@ -30,7 +35,7 @@ void Poker_stability_test(
             name += std::to_string(j);
 
             players.emplace_back(Player{
-                rng, std::move(name), j, 1000, d
+                rng, std::move(name), j, initial_money, d
             });
         }
 
@@ -50,9 +55,13 @@ void Poker_stability_test(
             }
         }
 
+        std::cout << "Rounds: " << manager.get_number_of_rounds() << '\n';
+
         for (const Player& p : players) {
-            std::cout << "Player: " << p.get_name() << " | Money: " << p.get_money() << " | Status: " << p.get_status() << '\n';
-            if (p.get_status() == Player_status::Active && p.get_money() != players.size() * 1000) {
+            std::cout << "Player: " << p.get_name() << " | Difficulty: " << p.get_difficulty()
+                << " | Money: " << p.get_money() << " | Status: " << p.get_status() << '\n';
+
+            if (p.get_status() == Player_status::Active && p.get_money() != players.size() * initial_money) {
                 throw std::runtime_error("Error");
             }
         }

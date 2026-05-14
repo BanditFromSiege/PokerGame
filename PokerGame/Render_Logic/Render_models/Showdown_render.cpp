@@ -46,7 +46,7 @@ void Showdown_render::update_showdown() noexcept {
 			winners_and_rewards_label[i]->setVisible(true);
 			winners_and_rewards_label[i]->setText(std::move(text));
 		}
-		else if (c_ref_manager.get_active_players() == 1) {
+		else if (c_ref_manager.get_count_active_players() == 1) {
 			winners_and_rewards_label[i]->setVisible(true);
 			winners_and_rewards_label[i]->setText(std::move(text));
 		}

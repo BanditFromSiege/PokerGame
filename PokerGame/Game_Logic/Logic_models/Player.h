@@ -46,13 +46,18 @@ public:
 	std::optional<double> get_relative_probability() const noexcept;
 	std::optional<double> get_absolute_probability() const noexcept;
 
+	std::size_t get_initial_money() const noexcept;
+
 	std::size_t get_money() const noexcept;
 	std::size_t get_current_player_bet() const noexcept;
 	std::size_t get_sum_of_bets() const noexcept;
+
 	std::array<Card, Card::COUNT_OF_CARDS_IN_HAND> get_cards() const noexcept;
 	std::pair<Card, Card> get_pair_of_cards() const noexcept;
+
 	std::optional<Player_action> get_last_move() const noexcept;
 	std::uint8_t get_id() const noexcept;
+
 	Player_difficulty get_difficulty() const noexcept;
 	Player_status get_status() const noexcept;
 	Player_type get_type() const noexcept;

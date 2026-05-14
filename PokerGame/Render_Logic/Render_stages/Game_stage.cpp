@@ -11,7 +11,7 @@ void Game_stage::create_players() noexcept {
         name += std::to_string(i);
 
         players.emplace_back(Player{
-            rng, std::move(name), i, 1000, current_diff
+            rng, std::move(name), i, current_initial_money, current_diff
         });
     }
 
@@ -89,6 +89,7 @@ Game_stage::Game_stage(
     Render_stages& stage,
     Render_color& color,
     Player_difficulty& diff,
+    std::size_t& initial_money,
     bool& execution_mode_sequenced,
     bool& new_game,
     bool& game_is_running,
@@ -100,6 +101,7 @@ Game_stage::Game_stage(
     , current_stage(stage)
     , current_color(color)
     , current_diff(diff)
+    , current_initial_money(initial_money)
     , execution_mode_sequenced(execution_mode_sequenced)
     , create_new_game(new_game)
     , current_game_is_running(game_is_running)

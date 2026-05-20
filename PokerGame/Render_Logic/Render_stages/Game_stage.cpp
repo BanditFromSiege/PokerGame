@@ -79,9 +79,33 @@ void Game_stage::reset_game() noexcept {
     }
 
     console_logger->setText("");
+    log_buffer.clear();
 
     paused = false;
     clock.restart();
+}
+
+void Game_stage::add_to_logs(std::string str) noexcept {
+    if (!console_logger) {
+        return;
+    }
+
+    constexpr std::size_t max_strings_in_console_logs = 400;
+
+    log_buffer.push_back(std::move(str));
+
+    if (log_buffer.size() > max_strings_in_console_logs) {
+        log_buffer.pop_front();
+    }
+
+    std::string full_str;
+    full_str.reserve(log_buffer.size() * 150);
+
+    for (const auto& s : log_buffer) {
+        full_str += s;
+    }
+
+    console_logger->setText(full_str);
 }
 
 Game_stage::Game_stage(
@@ -194,12 +218,16 @@ Game_stage::Game_stage(
 }
 
 void Game_stage::input(const std::optional<sf::Event> event) noexcept {
+    if (!event) {
+        return;
+    }
+
     if (current_game_is_running) {
         if (event->is<sf::Event::FocusLost>()) {
             paused = true;
             paused_label->setVisible(paused);
         }
-        if (event->is<sf::Event::FocusGained>()) {
+        else if (event->is<sf::Event::FocusGained>()) {
             clock.restart();
         }
     }
@@ -236,6 +264,7 @@ void Game_stage::update() noexcept {
         ptr_logger = std::make_unique<Logger>(*ptr_manager);
 
         console_logger->setText("");
+        log_buffer.clear();
 
         if (execution_mode_sequenced) {
             ptr_manager->set_evaluator_sequenced_policy();
@@ -267,7 +296,7 @@ void Game_stage::update() noexcept {
             if (!str.empty()) {
                 file << str;
                 file.flush();
-                console_logger->addText(std::move(str));
+                add_to_logs(std::move(str));
             }
 
             if (ptr_manager->get_current_stage() == Poker_stage::Preflop) {

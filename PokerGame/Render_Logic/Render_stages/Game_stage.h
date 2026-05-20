@@ -25,6 +25,8 @@ private:
 	std::vector<Player> players{};
 	std::vector<Player_render> players_render{};
 
+	std::deque<std::string> log_buffer;
+
 	std::shared_ptr<tgui::Label> paused_label = nullptr;
 	std::shared_ptr<tgui::Label> round_label = nullptr;
 
@@ -64,6 +66,8 @@ private:
 
 	void create_players() noexcept;
 	void reset_game() noexcept;
+
+	void add_to_logs(std::string str) noexcept;
 
 public:
 	Game_stage(

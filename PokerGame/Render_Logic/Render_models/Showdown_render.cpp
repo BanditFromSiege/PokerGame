@@ -29,11 +29,17 @@ void Showdown_render::update_showdown() noexcept {
 
 	for (; const auto& [money, ids] : c_ref_winners_and_rewards) {
 		std::string text;
-		text += "Pot " + std::to_string(i + 1);
-		text += " [" + std::to_string(money) + "] Winners: ";
+		text.reserve(64);
+
+		text += "Pot ";
+		text += std::to_string(i + 1);
+		text += " [";
+		text += std::to_string(money);
+		text += "] Winners: ";
 
 		for (std::uint8_t id : ids) {
-			text += c_ref_players[id].get_name() + ", ";
+			text += c_ref_players[id].get_name();
+			text += ", ";
 		}
 		text.pop_back();
 		text.pop_back();

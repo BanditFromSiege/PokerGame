@@ -23,11 +23,16 @@ Player_render::Player_render(
     name_and_money_label = tgui::Label::create();
     name_and_money_label->setPosition({ coords.first + 25, coords.second + 160});
 
-    name_and_money_label->setText(
-        player.get_name() + " "
-        + player_type_to_c_str(player.get_type())
-        + " [" + std::to_string(player.get_money()) + "]"
-    );
+    std::string str = player.get_name();
+    str.reserve(20);
+
+    str += ' ';
+    str += player_type_to_c_str(player.get_type());
+    str += " [";
+    str += std::to_string(player.get_money());
+    str += ']';
+
+    name_and_money_label->setText(std::move(str));
 
     name_and_money_label->setTextSize(20);
     name_and_money_label->getRenderer()->setTextColor(tgui::Color::White);
@@ -66,11 +71,16 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
         card1.set_new_card(cards[0]);
         card2.set_new_card(cards[1]);
 
-        name_and_money_label->setText(
-            player.get_name() + " "
-            + player_type_to_c_str(player.get_type())
-            + " [" + std::to_string(player.get_money()) + "]"
-        );
+        std::string str = player.get_name();
+        str.reserve(20);
+
+        str += ' ';
+        str += player_type_to_c_str(player.get_type());
+        str += " [";
+        str += std::to_string(player.get_money());
+        str += ']';
+
+        name_and_money_label->setText(std::move(str));
     }
     else {
         card1.set_back_card();
@@ -81,16 +91,19 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
         player_action_and_bet_label->setVisible(true);
 
         std::string str = player_action_to_c_str(*opt_move);
+        str.reserve(16);
+
         auto bet = player.get_current_player_bet();
 
-        if (bet != 0 && (*opt_move == Player_action::Call || *opt_move == Player_action::Raise || *opt_move == Player_action::None)) {
-            str += ' ' + std::to_string(bet);
+        if (bet != 0) {
+            str += ' ';
+            str += std::to_string(bet);
 
             if (player.is_all_in()) {
                 str += " (ALL-IN)";
             }
         }
-        else if (player.is_all_in() && *opt_move == Player_action::None) {
+        else if (player.is_all_in()) {
             str += " (ALL-IN)";
         }
 
@@ -138,9 +151,11 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
         opt_absolute_probability || opt_relative_probability)
     {
         std::string str;
+        str.reserve(16);
 
         if (opt_absolute_probability) {
-            str += std::format("AP ({:.2f}) ", *opt_absolute_probability) + ' ';
+            str += std::format("AP ({:.2f}) ", *opt_absolute_probability);
+            str += ' ';
         }
 
         if (opt_relative_probability) {

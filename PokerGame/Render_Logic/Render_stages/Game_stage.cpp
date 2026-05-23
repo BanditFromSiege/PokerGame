@@ -374,29 +374,6 @@ Game_stage::Game_stage(
     bet_slider->setVisible(false);
 }
 
-void Game_stage::input(const std::optional<sf::Event> event) noexcept {
-    if (!event) {
-        return;
-    }
-
-    if (current_game_is_running) {
-        if (event->is<sf::Event::FocusLost>()) {
-            paused = true;
-            paused_label->setVisible(paused);
-
-            fold_button->setEnabled(!paused);
-            call_or_check_button->setEnabled(!paused);
-            raise_button->setEnabled(!paused);
-
-            new_bet_label->setVisible(!paused);
-            bet_slider->setVisible(!paused);
-        }
-        else if (event->is<sf::Event::FocusGained>()) {
-            clock.restart();
-        }
-    }
-}
-
 void Game_stage::update() noexcept {
     if (current_execution_mode_sequenced != execution_mode_sequenced) {
         if (ptr_manager) {

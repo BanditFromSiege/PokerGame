@@ -51,10 +51,6 @@ void Render_manager::input() noexcept {
         }
 
         gui.handleEvent(*event);
-
-        if (current_stage == Render_stages::Game) {
-            game_stage_ptr->input(event);
-        }
     }
 }
 

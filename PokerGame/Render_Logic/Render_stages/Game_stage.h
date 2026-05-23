@@ -98,7 +98,6 @@ public:
 		std::pair<std::uint16_t, std::uint16_t> coords
 	) noexcept;
 
-	void input(const std::optional<sf::Event> event) noexcept;
 	void update() noexcept;
 
 	void set_visible(bool flag) noexcept;

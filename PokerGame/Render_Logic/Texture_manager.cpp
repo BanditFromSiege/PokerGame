@@ -79,6 +79,30 @@ std::shared_ptr<tgui::RadioButton> Texture_manager::make_radio_button(
     return radio_button;
 }
 
+std::shared_ptr<tgui::Slider> Texture_manager::make_slider(
+    tgui::Gui& gui,
+    std::pair<std::uint16_t, std::uint16_t> coords,
+    std::pair<float, float> size,
+    std::pair<float, float> min_max,
+    float step,
+    float value,
+    std::function<void(float)> func
+) noexcept
+{
+    std::shared_ptr<tgui::Slider> slider = tgui::Slider::create();
+    slider->setPosition({ coords.first, coords.second });
+    slider->setSize({ size.first, size.second });
+    slider->setMinimum(min_max.first);
+    slider->setMaximum(min_max.second);
+    slider->setStep(step);
+    slider->setValue(value);
+    slider->onValueChange(func);
+
+    gui.add(slider);
+
+    return slider;
+}
+
 const tgui::Texture& Texture_manager::get_card_texture(std::uint8_t index) const noexcept {
 	return card_textures_pool[index];
 }

@@ -41,8 +41,11 @@ void Showdown_render::update_showdown() noexcept {
 			text += c_ref_players[id].get_name();
 			text += ", ";
 		}
-		text.pop_back();
-		text.pop_back();
+
+		if (text.size() >= 2) {
+			text.pop_back();
+			text.pop_back();
+		}
 
 		if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
 			text += " (Combination - ";

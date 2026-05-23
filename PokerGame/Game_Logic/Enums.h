@@ -1,6 +1,11 @@
 #pragma once
 #include <iostream>
 
+enum class Game_mode : std::uint8_t {
+    Spectator,
+    Player
+};
+
 enum class Poker_stage : std::uint8_t {
     Preparation_preflop,
 	Preflop,
@@ -41,6 +46,14 @@ enum class Player_difficulty : std::uint8_t {
     Medium,
     Easy
 };
+
+constexpr const char* game_mode_to_c_str(Game_mode m) noexcept {
+    switch (m) {
+        case Game_mode::Spectator : return "Spectator";
+        case Game_mode::Player : return "Player";
+        default : return "?";
+    }
+}
 
 constexpr const char* poker_stage_to_c_str(Poker_stage v) noexcept {
     switch (v) {
@@ -96,6 +109,11 @@ constexpr const char* player_difficulty_to_c_str(Player_difficulty d) noexcept {
         case Player_difficulty::Easy : return "Easy";
         default : return "?";
     }
+}
+
+inline std::ostream& operator<<(std::ostream& out, Game_mode m) {
+    out << game_mode_to_c_str(m);
+    return out;
 }
 
 inline std::ostream& operator<<(std::ostream& out, Poker_stage v) {

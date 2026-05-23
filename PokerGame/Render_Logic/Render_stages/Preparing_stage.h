@@ -7,6 +7,7 @@ private:
 
     Render_stages& current_stage;
     Player_difficulty& current_diff;
+    Game_mode& current_game_mode;
     std::uint8_t& selected_players;
     std::size_t& current_initial_money;
     bool& create_new_game;
@@ -29,7 +30,9 @@ private:
     std::shared_ptr<tgui::RadioButton> no_limit_texas_holdem_radio_button = nullptr;
 
     std::shared_ptr<tgui::Label> choice_game_mode_label = nullptr;
+    std::shared_ptr<tgui::RadioButtonGroup> game_mode_group = nullptr;
     std::shared_ptr<tgui::RadioButton> spectator_mode_radio_button = nullptr;
+    std::shared_ptr<tgui::RadioButton> player_mode_radio_button = nullptr;
 
     std::shared_ptr<tgui::Label> choice_player_stack_label = nullptr;
     std::shared_ptr<tgui::RadioButtonGroup> player_stack_group = nullptr;
@@ -45,6 +48,7 @@ public:
         tgui::Gui& gui,
         Render_stages& stage,
         Player_difficulty& diff,
+        Game_mode& game_mode,
         std::uint8_t& number_of_players,
         std::size_t& initial_money,
         bool& new_game,

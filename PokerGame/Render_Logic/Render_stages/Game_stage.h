@@ -13,6 +13,7 @@ private:
 	Render_stages& current_stage;
 	Render_color& current_color;
 	Player_difficulty& current_diff;
+	Game_mode& current_game_mode;
 	std::size_t& current_initial_money;
 
 	bool& execution_mode_sequenced;
@@ -42,10 +43,18 @@ private:
 
 	std::shared_ptr<tgui::TextArea> console_logger = nullptr;
 
+	std::shared_ptr<tgui::Button> fold_button = nullptr;
+	std::shared_ptr<tgui::Button> call_or_check_button = nullptr;
+	std::shared_ptr<tgui::Button> raise_button = nullptr;
+	std::shared_ptr<tgui::Label> new_bet_label = nullptr;
+	std::shared_ptr<tgui::Slider> bet_slider = nullptr;
+
 	std::unique_ptr<Poker_game_manager> ptr_manager = nullptr;
 	std::unique_ptr<Table_render> ptr_table_render = nullptr;
 	std::unique_ptr<Showdown_render> ptr_showdown_render = nullptr;
 	std::unique_ptr<Logger> ptr_logger = nullptr;
+
+	std::size_t player_bet = 0;
 
 	sf::Clock clock;
 
@@ -61,13 +70,17 @@ private:
 
 	bool current_execution_mode_sequenced = true;
 	bool paused = false;
+	bool player_make_turn = false;
 
 	std::uint8_t dealer_id = 0;
 
 	void create_players() noexcept;
+	void end_game() noexcept;
 	void reset_game() noexcept;
 
 	void add_to_logs(std::string str) noexcept;
+
+	void check_is_player_turn() noexcept;
 
 public:
 	Game_stage(
@@ -75,6 +88,7 @@ public:
 		Render_stages& stage,
 		Render_color& color,
 		Player_difficulty& diff,
+		Game_mode& game_mode,
 		std::size_t& initial_money,
 		bool& execution_mode_sequenced,
 		bool& new_game,

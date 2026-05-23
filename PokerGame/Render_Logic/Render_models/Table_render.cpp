@@ -101,8 +101,11 @@ void Table_render::update_table() noexcept {
 			text += players[id].get_name();
 			text += ", ";
 		}
-		text.pop_back();
-		text.pop_back();
+
+		if (text.size() >= 2) {
+			text.pop_back();
+			text.pop_back();
+		}
 
 		text += ')';
 

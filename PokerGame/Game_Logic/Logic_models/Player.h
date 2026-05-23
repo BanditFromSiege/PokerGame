@@ -29,6 +29,12 @@ private:
 	Player_status status = Player_status::Active;
 	Player_type type = Player_type::TAG;
 
+	bool is_can_show_cards = false;
+	bool is_can_show_combination = false;
+	bool is_can_show_relative_probability = false;
+	bool is_can_show_absolute_probability = false;
+	bool is_can_show_type = false;
+
 public:
 	Player() noexcept;
 
@@ -62,6 +68,12 @@ public:
 	Player_status get_status() const noexcept;
 	Player_type get_type() const noexcept;
 
+	bool get_is_can_show_cards() const noexcept;
+	bool get_is_can_show_combination() const noexcept;
+	bool get_is_can_show_relative_probability() const noexcept;
+	bool get_is_can_show_absolute_probability() const noexcept;
+	bool get_is_can_show_type() const noexcept;
+
 	bool is_active() const noexcept;
 	bool is_in_game() const noexcept;
 	bool is_all_in() const noexcept;
@@ -69,6 +81,7 @@ public:
 	void check_money_enough() noexcept;
 
 	void set_combination(const std::vector<Card>& table_cards) noexcept;
+	void set_combination(std::optional<Poker_combination> opt_comb) noexcept;
 
 	void set_relative_probability(std::optional<double> probability) noexcept;
 	void set_absolute_probability(std::optional<double> probability) noexcept;
@@ -79,6 +92,12 @@ public:
 	void set_last_move(std::optional<Player_action> new_move) noexcept;
 	void set_id(std::uint8_t index) noexcept;
 	void set_status(Player_status new_status) noexcept;
+
+	void set_is_can_show_cards(bool f) noexcept;
+	void set_is_can_show_combination(bool f) noexcept;
+	void set_is_can_show_relative_probability(bool f) noexcept;
+	void set_is_can_show_absolute_probability(bool f) noexcept;
+	void set_is_can_show_type(bool f) noexcept;
 
 	void make_fold() noexcept;
 	void get_win(std::size_t share) noexcept;

@@ -35,7 +35,11 @@ std::string Logger::get_str_table() noexcept {
         result += c.get_str();
         result += ' ';
     }
-    result.pop_back();
+
+    if (result.size() >= 1) {
+        result.pop_back();
+    }
+
     result += ";\n";
 
     for (std::size_t i = 0; const Pot& pot : c_ref_table.get_const_pots()) {
@@ -49,8 +53,11 @@ std::string Logger::get_str_table() noexcept {
             result += c_ref_players[id].get_name();
             result += ", ";
         }
-        result.pop_back();
-        result.pop_back();
+
+        if (result.size() >= 2) {
+            result.pop_back();
+            result.pop_back();
+        }
 
         result += ");\n";
     }
@@ -64,8 +71,28 @@ std::string Logger::get_str_showdown() noexcept {
     const auto& c_ref_winners_and_rewards = c_ref_manager.get_winners_and_rewards();
     const auto& c_ref_players = c_ref_manager.get_players();
 
-    std::string result = "\n";
+    std::string result = "\nActive players:\n";
     result.reserve(256);
+
+    for (const auto& p : c_ref_players) {
+        if (p.is_active() || p.is_all_in()) {
+            result += p.get_name();
+            result += " {(";
+            result += p.get_cards()[0].get_str();
+            result += ", ";
+            result += p.get_cards()[1].get_str();
+            result += ")";
+
+            if (auto opt_comb = p.get_combination(); opt_comb) {
+                result += ' ';
+                result += combination_to_c_str(opt_comb->get_power());
+            }
+
+            result += "};\n";
+        }
+    }
+
+    result += '\n';
 
     for (std::size_t i = 0; const auto& [money, ids] : c_ref_winners_and_rewards) {
         result += "Pot ";
@@ -78,8 +105,11 @@ std::string Logger::get_str_showdown() noexcept {
             result += c_ref_players[id].get_name();
             result += ", ";
         }
-        result.pop_back();
-        result.pop_back();
+
+        if (result.size() >= 2) {
+            result.pop_back();
+            result.pop_back();
+        }
 
         if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
             result += " (Combination - ";
@@ -106,29 +136,54 @@ std::string Logger::log_player_action(std::uint8_t id) noexcept {
     result += get_time();
     result += "] ";
     result += p.get_name();
-    result += ' ';
-    result += player_type_to_c_str(p.get_type());
 
-    result += " {(";
-    result += p.get_cards()[0].get_str();
-    result += ", ";
-    result += p.get_cards()[1].get_str();
-    result += ')';
-
-    if (auto opt_absolute_probability = p.get_absolute_probability(); opt_absolute_probability) {
-        result += std::format(", AP({:.2f})", *opt_absolute_probability);
+    if (p.get_is_can_show_type()) {
+        result += ' ';
+        result += player_type_to_c_str(p.get_type());
     }
 
-    if (auto opt_relative_probability = p.get_relative_probability(); opt_relative_probability) {
-        result += std::format(", RP({:.2f})", *opt_relative_probability);
-    }
-    
-    if (auto opt_combination = p.get_combination(); opt_combination) {
+    bool f = false;
+
+    if (p.get_is_can_show_cards()) {
+        result += " {(";
+        result += p.get_cards()[0].get_str();
         result += ", ";
-        result += combination_to_c_str(opt_combination->get_power());
+        result += p.get_cards()[1].get_str();
+        result += ')';
+
+        f = true;
     }
 
-    result += "} [";
+    if (p.get_is_can_show_absolute_probability()) {
+        if (auto opt_absolute_probability = p.get_absolute_probability(); opt_absolute_probability) {
+            result += std::format(", AP({:.2f})", *opt_absolute_probability);
+        }
+
+        f = true;
+    }
+
+    if (p.get_is_can_show_relative_probability()) {
+        if (auto opt_relative_probability = p.get_relative_probability(); opt_relative_probability) {
+            result += std::format(", RP({:.2f})", *opt_relative_probability);
+        }
+
+        f = true;
+    }
+
+    if (p.get_is_can_show_combination()) {
+        if (auto opt_combination = p.get_combination(); opt_combination) {
+            result += ", ";
+            result += combination_to_c_str(opt_combination->get_power());
+        }
+
+        f = true;
+    }
+
+    if (f) {
+        result += '}';
+    }
+
+    result += " [";
     result += std::to_string(p.get_money());
     result += "]";
 
@@ -223,19 +278,34 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
             }
         }
 
+        const auto& c_ref_players = c_ref_manager.get_players();
+        const auto& c_ref_table = c_ref_manager.get_table();
+        auto diff = c_ref_players.front().get_difficulty();
+        auto initial_money = c_ref_players.front().get_initial_money();
+        auto game_mode = c_ref_manager.get_current_game_mode();
+
         result += "\nRound #";
         result += std::to_string(rounds);
 
         result += " (";
         result += std::to_string(c_ref_manager.get_count_active_players());
         result += '/';
-        result += std::to_string(c_ref_manager.get_players().size());
-        result += " players);\n";
+        result += std::to_string(c_ref_players.size());
+        result += " players:";
 
-        const auto& c_ref_players = c_ref_manager.get_players();
-        const auto& c_ref_table = c_ref_manager.get_table();
-        auto diff = c_ref_players.front().get_difficulty();
-        auto initial_money = c_ref_players.front().get_initial_money();
+        for (const auto& p : c_ref_players) {
+            if (p.is_in_game()) {
+                result += ' ';
+                result += p.get_name();
+                result += ",";
+            }
+        }
+
+        if (result.size() >= 1) {
+            result.pop_back();
+        }
+
+        result += ");\n";
 
         result += "Difficulty: ";
         result += player_difficulty_to_c_str(diff);
@@ -245,13 +315,17 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
         result += std::to_string(initial_money);
         result += ";\n";
 
+        result += "Game mode: ";
+        result += game_mode_to_c_str(game_mode);
+        result += ";\n";
+
         result += "Blinds: ";
         result += std::to_string(c_ref_table.get_current_small_blind());
         result += '/';
         result += std::to_string(c_ref_table.get_current_big_blind());
         result += ";\n";
 
-        result += "PREFLOP";
+        result += "\nPREFLOP";
         result += " Dealer - ";
         result += c_ref_manager.get_players()[c_ref_manager.get_dealer_player_id()].get_name();
         result += ";\n\n";
@@ -270,6 +344,15 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
     }
     else if (stage == Poker_stage::After_showdown && !opt_id) {
         result += "\nSHOWDOWN;";
+
+        if (c_ref_manager.get_count_active_players() > 1) {
+            result += get_str_table();
+
+            if (result.size() >= 1) {
+                result.pop_back();
+            }
+        }
+
         result += get_str_showdown();
     }
 
@@ -306,9 +389,10 @@ std::string Logger::get_message() noexcept {
         }
     }
     else {
+        auto game_mode = c_ref_manager.get_current_game_mode();
         auto opt_id = c_ref_manager.get_winner_id();
 
-        if (!opt_id) {
+        if (!opt_id && game_mode == Game_mode::Spectator) {
             return "";
         }
 
@@ -330,9 +414,16 @@ std::string Logger::get_message() noexcept {
             }
         }
 
-        result += "\nWinner in game: ";
-        result += c_ref_players[*opt_id].get_name();
-        result += ";\n";
+        if (opt_id) {
+            result += "\nWinner in game: ";
+            result += c_ref_players[*opt_id].get_name();
+            result += ";\n";
+        }
+        else {
+            result += '\n';
+            result += c_ref_players[0].get_name();
+            result += " lose in game;\n";
+        }
 
         return result;
     }

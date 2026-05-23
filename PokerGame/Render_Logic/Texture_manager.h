@@ -38,6 +38,16 @@ public:
 		std::function<void()> func
 	) noexcept;
 
+	static std::shared_ptr<tgui::Slider> make_slider(
+		tgui::Gui& gui,
+		std::pair<std::uint16_t, std::uint16_t> coords,
+		std::pair<float, float> size,
+		std::pair<float, float> min_max,
+		float step,
+		float value,
+		std::function<void(float)> func
+	) noexcept;
+
 	const tgui::Texture& get_card_texture(std::uint8_t index) const noexcept;
 	const tgui::Texture& get_back_card_texture() const noexcept;
 

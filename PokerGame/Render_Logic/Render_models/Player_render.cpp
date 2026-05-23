@@ -26,8 +26,11 @@ Player_render::Player_render(
     std::string str = player.get_name();
     str.reserve(20);
 
-    str += ' ';
-    str += player_type_to_c_str(player.get_type());
+    if (player.get_is_can_show_type()) {
+        str += ' ';
+        str += player_type_to_c_str(player.get_type());
+    }
+
     str += " [";
     str += std::to_string(player.get_money());
     str += ']';
@@ -66,21 +69,24 @@ Player_render::Player_render(
 }
 
 void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<std::uint8_t> current_player_id) noexcept {
-    if (player.is_in_game()) {
+    std::string str = player.get_name();
+    str.reserve(20);
+
+    if (player.get_is_can_show_type()) {
+        str += ' ';
+        str += player_type_to_c_str(player.get_type());
+    }
+
+    str += " [";
+    str += std::to_string(player.get_money());
+    str += ']';
+
+    name_and_money_label->setText(std::move(str));
+
+    if (player.get_is_can_show_cards()) {
         auto cards = player.get_cards();
         card1.set_new_card(cards[0]);
         card2.set_new_card(cards[1]);
-
-        std::string str = player.get_name();
-        str.reserve(20);
-
-        str += ' ';
-        str += player_type_to_c_str(player.get_type());
-        str += " [";
-        str += std::to_string(player.get_money());
-        str += ']';
-
-        name_and_money_label->setText(std::move(str));
     }
     else {
         card1.set_back_card();
@@ -146,32 +152,36 @@ void Player_render::update_player(std::uint8_t dealer_player_id, std::optional<s
         is_has_current_player_arrow = false;
     }
 
-    if (auto opt_absolute_probability = player.get_absolute_probability(),
-        opt_relative_probability = player.get_relative_probability(); 
-        opt_absolute_probability || opt_relative_probability)
-    {
+    if (player.get_is_can_show_absolute_probability() || player.get_is_can_show_relative_probability()) {
         std::string str;
         str.reserve(16);
-
-        if (opt_absolute_probability) {
+        
+        if (auto opt_absolute_probability = player.get_absolute_probability(); opt_absolute_probability) {
             str += std::format("AP ({:.2f}) ", *opt_absolute_probability);
-            str += ' ';
+
+            probabilities_label->setText(std::move(str));
+            probabilities_label->setVisible(true);
         }
 
-        if (opt_relative_probability) {
-            str += std::format("RP ({:.2f}) ", *opt_relative_probability);
-        }
+        if (auto opt_relative_probability = player.get_relative_probability(); opt_relative_probability) {
+            str += std::format("RP ({:.2f})", *opt_relative_probability);
 
-        probabilities_label->setText(std::move(str));
-        probabilities_label->setVisible(true);
+            probabilities_label->setText(std::move(str));
+            probabilities_label->setVisible(true);
+        }
     }
     else {
         probabilities_label->setVisible(false);
     }
 
-    if (auto opt_comb = player.get_combination(); opt_comb && (player.is_active() || player.is_all_in())) {
-        combination_label->setVisible(true);
-        combination_label->setText(combination_to_c_str(opt_comb->get_power()));
+    if (player.get_is_can_show_combination()) {
+        if (auto opt_comb = player.get_combination(); opt_comb && (player.is_active() || player.is_all_in())) {
+            combination_label->setVisible(true);
+            combination_label->setText(combination_to_c_str(opt_comb->get_power()));
+        }
+        else {
+            combination_label->setVisible(false);
+        }
     }
     else {
         combination_label->setVisible(false);
@@ -201,28 +211,20 @@ void Player_render::set_visible(bool flag) noexcept {
         current_player_arrow->setVisible(false);
     }
     else {
-        if (!player.is_in_game()) {
-            card1.set_back_card();
-            card2.set_back_card();
-        }
-        else {
-            player_action_and_bet_label->setVisible(
-                player.get_last_move().has_value() || player.get_current_player_bet() > 0 || player.is_all_in()
-            );
-
-            probabilities_label->setVisible(
-                player.get_absolute_probability().has_value() || player.get_relative_probability().has_value()
-            );
-
-            combination_label->setVisible(
-                player.get_combination().has_value() && (player.is_active() || player.is_all_in())
-            );
-        }
-
         card1.set_visible(true);
         card2.set_visible(true);
 
         name_and_money_label->setVisible(true);
+
+        player_action_and_bet_label->setVisible(
+            player.get_last_move().has_value() || player.get_current_player_bet() > 0 || player.is_all_in()
+        );
+
+        probabilities_label->setVisible(
+            player.get_is_can_show_absolute_probability() || player.get_is_can_show_relative_probability()
+        );
+
+        combination_label->setVisible(player.get_is_can_show_combination());
 
         dealer_button->setVisible(is_has_dealer_button);
         current_player_arrow->setVisible(is_has_current_player_arrow);

@@ -401,7 +401,7 @@ void Game_stage::update() noexcept {
 
         ptr_manager = std::make_unique<Poker_game_manager>(rng, players, eval, current_game_mode);
         ptr_table_render = std::make_unique<Table_render>(gui, *ptr_manager, std::pair{ center_x - 190, center_y - 100 });
-        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1100, 20 });
+        ptr_showdown_render = std::make_unique<Showdown_render>(gui, *ptr_manager, std::pair{ 1200, 20 });
         ptr_logger = std::make_unique<Logger>(*ptr_manager);
 
         console_logger->setText("");

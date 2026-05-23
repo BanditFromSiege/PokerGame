@@ -92,14 +92,12 @@ std::string Logger::get_str_showdown() noexcept {
         }
     }
 
-    result += '\n';
+    result += "\nResults:\n";
 
     for (std::size_t i = 0; const auto& [money, ids] : c_ref_winners_and_rewards) {
-        result += "Pot ";
-        result += std::to_string(++i);
-        result += " [";
+        result += "[+";
         result += std::to_string(money);
-        result += "] Winners: ";
+        result += "] ";
 
         for (std::uint8_t id : ids) {
             result += c_ref_players[id].get_name();
@@ -112,7 +110,7 @@ std::string Logger::get_str_showdown() noexcept {
         }
 
         if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
-            result += " (Combination - ";
+            result += " (";
             result += combination_to_c_str(opt_comb->get_power());
             result += ')';
         }
@@ -271,7 +269,7 @@ std::string Logger::log_stage(Poker_stage stage) noexcept {
                     result += "] ";
 
                     result += c_ref_players[i].get_name();
-                    result += " out from game;\n";
+                    result += " out of the game;\n";
 
                     outed_players[i] = true;
                 }
@@ -408,7 +406,7 @@ std::string Logger::get_message() noexcept {
                 result += "] ";
 
                 result += c_ref_players[i].get_name();
-                result += " out from game;\n";
+                result += " out of the game;\n";
 
                 outed_players[i] = true;
             }

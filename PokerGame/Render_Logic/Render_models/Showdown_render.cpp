@@ -31,11 +31,9 @@ void Showdown_render::update_showdown() noexcept {
 		std::string text;
 		text.reserve(64);
 
-		text += "Pot ";
-		text += std::to_string(i + 1);
-		text += " [";
+		text += "[+";
 		text += std::to_string(money);
-		text += "] Winners: ";
+		text += "] ";
 
 		for (std::uint8_t id : ids) {
 			text += c_ref_players[id].get_name();
@@ -48,7 +46,7 @@ void Showdown_render::update_showdown() noexcept {
 		}
 
 		if (auto opt_comb = c_ref_players[ids.front()].get_combination(); opt_comb) {
-			text += " (Combination - ";
+			text += " (";
 			text += combination_to_c_str(opt_comb->get_power());
 			text += ')';
 

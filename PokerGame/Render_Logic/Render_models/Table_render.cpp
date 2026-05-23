@@ -136,7 +136,7 @@ void Table_render::set_visible(bool flag) noexcept {
 		const auto& c_ref_table = c_ref_manager.get_table();
 		const auto& pots = c_ref_table.get_const_pots();
 
-		current_bet_label->setVisible(c_ref_table.get_current_bet() > 0);
+		current_bet_label->setVisible(true);
 		blinds_label->setVisible(true);
 
 		for (std::size_t i = 0; i < pots.size(); ++i) {

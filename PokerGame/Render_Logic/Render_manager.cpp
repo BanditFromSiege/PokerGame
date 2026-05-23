@@ -4,8 +4,11 @@ Render_manager::Render_manager(std::pair<std::uint16_t, std::uint16_t> coords) n
     : window(sf::VideoMode({ coords.first, coords.second }), "Poker", sf::Style::None)
     , gui(window)
 {
-    window.setFramerateLimit(60);
+    sf::Image icon = Texture_manager::get_instance().get_poker_icon();
+    window.setIcon(icon.getSize(), icon.getPixelsPtr());
 
+    window.setFramerateLimit(60);
+   
     rng = std::make_unique<std::mt19937_64>(std::random_device{}());
 
     menu_stage_ptr = std::make_unique<Menu_stage>(gui, stage, game_is_running);

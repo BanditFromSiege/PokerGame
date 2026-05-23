@@ -8,6 +8,7 @@
 class Texture_manager final {
 private:
 	std::vector<tgui::Texture> card_textures_pool;
+	sf::Image poker_icon;
 
 	Texture_manager() noexcept;
 
@@ -53,4 +54,6 @@ public:
 
 	const tgui::Texture& get_dealer_button_texture() const noexcept;
 	const tgui::Texture& get_current_player_arrow_texture() const noexcept;
+
+	const sf::Image& get_poker_icon() const noexcept;
 };

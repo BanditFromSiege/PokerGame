@@ -16,6 +16,9 @@ Texture_manager::Texture_manager() noexcept {
 
     path = "Images/Current_player_arrow.png";
     card_textures_pool[Card::COUNT_OF_ALL_CARDS + 2].load(path);
+
+    path = "Images/Poker_icon.png";
+    poker_icon.loadFromFile(path);
 }
 
 const Texture_manager& Texture_manager::get_instance() noexcept {
@@ -117,4 +120,8 @@ const tgui::Texture& Texture_manager::get_dealer_button_texture() const noexcept
 
 const tgui::Texture& Texture_manager::get_current_player_arrow_texture() const noexcept {
     return card_textures_pool[Card::COUNT_OF_ALL_CARDS + 2];
+}
+
+const sf::Image& Texture_manager::get_poker_icon() const noexcept {
+    return poker_icon;
 }

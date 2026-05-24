@@ -146,14 +146,14 @@ void Poker_game_manager::make_initial_bets_for_more_then_3_players(std::uint8_t&
 void Poker_game_manager::prepare_to_Preflop() noexcept {
 	winners_and_rewards.clear();
 
-	++number_of_rounds;
-
 	count_active_players = count_players_in_game;
 	count_all_in_players = 0;
 
-	if (number_of_rounds % round_per_blind_increase == 0) {
+	if (number_of_rounds > 0 && (number_of_rounds % round_per_blind_increase == 0)) {
 		table.raise_blinds();
 	}
+
+	++number_of_rounds;
 
 	std::vector<std::uint8_t> vec;
 	vec.reserve(count_active_players);

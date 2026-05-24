@@ -106,6 +106,26 @@ Player_type Player::get_type() const noexcept {
 	return type;
 }
 
+bool Player::get_is_can_show_cards() const noexcept {
+	return is_can_show_cards;
+}
+
+bool Player::get_is_can_show_combination() const noexcept {
+	return is_can_show_combination;
+}
+
+bool Player::get_is_can_show_relative_probability() const noexcept {
+	return is_can_show_relative_probability;
+}
+
+bool Player::get_is_can_show_absolute_probability() const noexcept {
+	return is_can_show_absolute_probability;
+}
+
+bool Player::get_is_can_show_type() const noexcept {
+	return is_can_show_type;
+}
+
 bool Player::is_active() const noexcept {
 	return status == Player_status::Active;
 }
@@ -128,13 +148,33 @@ void Player::set_combination(const std::vector<Card>& table_cards) noexcept {
 	new_span.push_back(cards[1]);
 
 	combination = Poker_combination::create_combination_by_cards(new_span);
+
+	if (!combination) {
+		is_can_show_combination = false;
+	}
+}
+
+void Player::set_combination(std::optional<Poker_combination> opt_comb) noexcept {
+	if (!opt_comb) {
+		is_can_show_combination = false;
+	}
+
+	combination = opt_comb;
 }
 
 void Player::set_relative_probability(std::optional<double> probability) noexcept {
+	if (!probability) {
+		is_can_show_relative_probability = false;
+	}
+
 	relative_probability = probability;
 }
 
 void Player::set_absolute_probability(std::optional<double> probability) noexcept {
+	if (!probability) {
+		is_can_show_absolute_probability = false;
+	}
+
 	absolute_probability = probability;
 }
 
@@ -148,9 +188,12 @@ void Player::set_sum_of_bets(std::size_t bet) noexcept {
 
 void Player::set_cards(Card c1, Card c2) noexcept {
 	combination = std::nullopt;
-
 	absolute_probability = std::nullopt;
 	relative_probability = std::nullopt;
+
+	is_can_show_combination = false;
+	is_can_show_absolute_probability = false;
+	is_can_show_relative_probability = false;
 
 	cards[0] = c1;
 	cards[1] = c2;
@@ -165,6 +208,26 @@ void Player::set_status(Player_status new_status) noexcept {
 	status = new_status;
 }
 
+void Player::set_is_can_show_cards(bool f) noexcept {
+	is_can_show_cards = f;
+}
+
+void Player::set_is_can_show_combination(bool f) noexcept {
+	is_can_show_combination = f;
+}
+
+void Player::set_is_can_show_relative_probability(bool f) noexcept {
+	is_can_show_relative_probability = f;
+}
+
+void Player::set_is_can_show_absolute_probability(bool f) noexcept {
+	is_can_show_absolute_probability = f;
+}
+
+void Player::set_is_can_show_type(bool f) noexcept {
+	is_can_show_type = f;
+}
+
 void Player::set_last_move(std::optional<Player_action> new_move) noexcept {
 	last_move = new_move;
 }
@@ -172,7 +235,9 @@ void Player::set_last_move(std::optional<Player_action> new_move) noexcept {
 void Player::make_fold() noexcept {
 	status = Player_status::Folded;
 	current_player_bet = 0;
+
 	absolute_probability = std::nullopt;
+	is_can_show_absolute_probability = false;
 }
 
 void Player::get_win(std::size_t share) noexcept {
@@ -187,6 +252,11 @@ void Player::reset_for_new_round() noexcept {
 	absolute_probability = std::nullopt;
 	relative_probability = std::nullopt;
 	last_move = std::nullopt;
+
+	is_can_show_cards = false;
+	is_can_show_combination = false;
+	is_can_show_relative_probability = false;
+	is_can_show_absolute_probability = false;
 }
 
 void Player::reset_for_new_game() noexcept {

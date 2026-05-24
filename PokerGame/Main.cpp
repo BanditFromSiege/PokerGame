@@ -1,4 +1,5 @@
 #include "Render_Logic/Render_manager.h"
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
 int main() {
     auto manager = std::make_unique<Render_manager>(std::pair{ 1920, 1080 });

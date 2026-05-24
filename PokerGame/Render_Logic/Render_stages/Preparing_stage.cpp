@@ -4,6 +4,7 @@ Preparing_stage::Preparing_stage(
 	tgui::Gui& gui,
 	Render_stages& stage,
 	Player_difficulty& diff,
+	Game_mode& game_mode,
 	std::uint8_t& number_of_players,
 	std::size_t& initial_money,
 	bool& new_game,
@@ -12,6 +13,7 @@ Preparing_stage::Preparing_stage(
 	: gui(gui)
 	, current_stage(stage)
 	, current_diff(diff)
+	, current_game_mode(game_mode)
 	, selected_players(number_of_players)
 	, current_initial_money(initial_money)
 	, create_new_game(new_game)
@@ -93,27 +95,46 @@ Preparing_stage::Preparing_stage(
 	choice_game_mode_label
 		= Texture_manager::make_label(gui, { 900, 450 }, 48, tgui::Color::White, "Select game mode");
 
-	spectator_mode_radio_button = Texture_manager::make_radio_button({ 900, 550 }, 36, tgui::Color::White, "Spectator", [](){});
+	spectator_mode_radio_button = Texture_manager::make_radio_button({ 900, 550 }, 36, tgui::Color::White, "Spectator",
+		[this]() {
+			current_game_mode = Game_mode::Spectator;
+		}
+	);
 
-	spectator_mode_radio_button->setChecked(true);
-	gui.add(spectator_mode_radio_button);
+	player_mode_radio_button = Texture_manager::make_radio_button({ 900, 600 }, 36, tgui::Color::White, "Player",
+		[this]() {
+			current_game_mode = Game_mode::Player;
+		}
+	);
+
+	game_mode_group = tgui::RadioButtonGroup::create();
+	gui.add(game_mode_group);
+	game_mode_group->add(spectator_mode_radio_button);
+	game_mode_group->add(player_mode_radio_button);
+
+	if (current_game_mode == Game_mode::Spectator) {
+		spectator_mode_radio_button->setChecked(true);
+	}
+	else if (current_game_mode == Game_mode::Player) {
+		player_mode_radio_button->setChecked(true);
+	}
 
 	choice_player_stack_label
-		= Texture_manager::make_label(gui, { 900, 600 }, 48, tgui::Color::White, "Select initial player stack");
+		= Texture_manager::make_label(gui, { 900, 650 }, 48, tgui::Color::White, "Select initial player stack");
 
-	short_stack_radio_button = Texture_manager::make_radio_button({ 900, 700 }, 36, tgui::Color::White, "Short (500)",
+	short_stack_radio_button = Texture_manager::make_radio_button({ 900, 750 }, 36, tgui::Color::White, "Short (500)",
 		[this](){
 			current_initial_money = 500;
 		}
 	);
 
-	normal_stack_radio_button = Texture_manager::make_radio_button({ 900, 750 }, 36, tgui::Color::White, "Normal (1000)",
+	normal_stack_radio_button = Texture_manager::make_radio_button({ 900, 800 }, 36, tgui::Color::White, "Normal (1000)",
 		[this]() {
 			current_initial_money = 1000;
 		}
 	);
 
-	long_stack_radio_button = Texture_manager::make_radio_button({ 900, 800 }, 36, tgui::Color::White, "Long (2000)",
+	long_stack_radio_button = Texture_manager::make_radio_button({ 900, 850 }, 36, tgui::Color::White, "Long (2000)",
 		[this]() {
 			current_initial_money = 2000;
 		}
@@ -180,7 +201,10 @@ void Preparing_stage::set_visible(bool flag) noexcept {
 	no_limit_texas_holdem_radio_button->setVisible(flag);
 
 	choice_game_mode_label->setVisible(flag);
+
+	game_mode_group->setVisible(flag);
 	spectator_mode_radio_button->setVisible(flag);
+	player_mode_radio_button->setVisible(flag);
 
 	choice_player_stack_label->setVisible(flag);
 	player_stack_group->setVisible(flag);

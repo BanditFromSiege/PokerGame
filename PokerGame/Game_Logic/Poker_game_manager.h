@@ -10,6 +10,8 @@ private:
 
 	std::vector<std::uint8_t> players_index{};
 	std::vector<std::pair<std::size_t, std::vector<std::uint8_t>>> winners_and_rewards{};
+
+	std::optional<std::pair<Player_action, std::size_t>> player_move = std::nullopt;
 	
 	std::vector<Player>& players;
 	std::mt19937_64& rng;
@@ -22,6 +24,7 @@ private:
 
 	Probability_evaluator evaluator;
 
+	Game_mode game_mode = Game_mode::Spectator;
 	Poker_stage stage = Poker_stage::Preparation_preflop;
 
 	std::uint8_t dealer_id = 0;
@@ -34,6 +37,7 @@ private:
 	std::uint8_t current_player_index_id = 0;
 	std::uint8_t current_bank_index_id = 0;
 
+	bool player_turn = false;
 	bool is_game_run = true;
 
 	void rotate_players(std::uint8_t new_index) noexcept;
@@ -51,6 +55,8 @@ private:
 	void prepare_to_River() noexcept;
 	void prepare_to_Showdown() noexcept;
 
+	void prepare_players_to_next_stage() noexcept;
+
 	void add_bets_to_pots() noexcept;
 
 	void perform_stage() noexcept;
@@ -63,11 +69,14 @@ public:
 	Poker_game_manager(
 		std::mt19937_64& rng,
 		std::vector<Player>& players,
-		Probability_evaluator& eval
+		Probability_evaluator& eval,
+		Game_mode mode
 	) noexcept;
 
 	const Table& get_table() const noexcept;
 	const std::vector<Player>& get_players() const noexcept;
+
+	Game_mode get_current_game_mode() const noexcept;
 	Poker_stage get_current_stage() const noexcept;
 
 	const std::optional<std::uint8_t> get_current_player_id() const noexcept;
@@ -85,6 +94,12 @@ public:
 
 	void set_evaluator_sequenced_policy() noexcept;
 	void set_evaluator_parallel_policy() noexcept;
+
+	std::pair<std::size_t, std::size_t> get_call_bet_for_player() const noexcept;
+	std::pair<std::size_t, std::size_t> get_min_max_bet_raise_for_player() const noexcept;
+
+	bool is_player_turn() noexcept;
+	void set_player_turn(std::pair<Player_action, std::size_t> move) noexcept;
 
 	void reset_for_new_game() noexcept;
 

@@ -26,8 +26,11 @@ Table_render::Table_render(
 	const auto& c_ref_table = c_ref_manager.get_table();
 
 	std::string str = "Blinds: ";
+	str.reserve(32);
+
 	str += std::to_string(c_ref_table.get_current_small_blind());
-	str += "/" + std::to_string(c_ref_table.get_current_big_blind());
+	str += '/';
+	str += std::to_string(c_ref_table.get_current_big_blind());
 
 	blinds_label->setText(std::move(str));
 
@@ -59,8 +62,11 @@ void Table_render::update_table() noexcept {
 	current_bet_label->setVisible(true);
 
 	std::string str = "Blinds: ";
+	str.reserve(32);
+
 	str += std::to_string(c_ref_table.get_current_small_blind());
-	str += "/" + std::to_string(c_ref_table.get_current_big_blind());
+	str += '/';
+	str += std::to_string(c_ref_table.get_current_big_blind());
 
 	blinds_label->setText(std::move(str));
 	blinds_label->setVisible(true);
@@ -83,16 +89,25 @@ void Table_render::update_table() noexcept {
 
 	for (; i < pots.size(); ++i) {
 		std::string text;
-		text += "Pot_" + std::to_string(i + 1) + ' ';
-		text += "[" + std::to_string(pots[i].get_bank()) + "] (";
+		text.reserve(64);
+
+		text += "Pot_";
+		text += std::to_string(i + 1);
+		text += " [";
+		text += std::to_string(pots[i].get_bank());
+		text += "] (";
 		
 		for (std::uint8_t id : pots[i].get_players_id()) {
-			text += players[id].get_name() + ", ";
+			text += players[id].get_name();
+			text += ", ";
 		}
-		text.pop_back();
-		text.pop_back();
 
-		text += ")";
+		if (text.size() >= 2) {
+			text.pop_back();
+			text.pop_back();
+		}
+
+		text += ')';
 
 		pots_label[i]->setVisible(true);
 		pots_label[i]->setText(std::move(text));
@@ -121,7 +136,7 @@ void Table_render::set_visible(bool flag) noexcept {
 		const auto& c_ref_table = c_ref_manager.get_table();
 		const auto& pots = c_ref_table.get_const_pots();
 
-		current_bet_label->setVisible(c_ref_table.get_current_bet() > 0);
+		current_bet_label->setVisible(true);
 		blinds_label->setVisible(true);
 
 		for (std::size_t i = 0; i < pots.size(); ++i) {

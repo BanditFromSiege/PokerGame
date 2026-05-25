@@ -1,6 +1,8 @@
 #pragma once
 #include "Enums.h"
+
 #include <optional>
+#include <string>
 
 class Card final {
 private:

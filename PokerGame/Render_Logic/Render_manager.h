@@ -1,6 +1,5 @@
 #pragma once
 #include "Render_stages/Preparing_stage.h"
-#include <numbers>
 
 class Render_manager final {
 private:

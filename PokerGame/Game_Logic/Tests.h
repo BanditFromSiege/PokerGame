@@ -1,5 +1,5 @@
 #pragma once
-#include "Poker_game_manager.h"
+#include "Logger.h"
 
 template <typename T = std::execution::sequenced_policy>
 requires (std::is_same_v<T, std::execution::sequenced_policy> || std::is_same_v<T, std::execution::parallel_policy>)

@@ -1,5 +1,6 @@
 #pragma once
-#include "Poker_combination.h"
+#include "Probability_evaluator.h"
+
 #include <syncstream>
 #include <iomanip>
 

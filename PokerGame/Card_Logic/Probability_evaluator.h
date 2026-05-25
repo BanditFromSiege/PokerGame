@@ -1,8 +1,11 @@
 #pragma once
 #include "Poker_combination.h"
+
 #include <algorithm>
 #include <execution>
 #include <ranges>
+#include <vector>
+#include <tuple>
 
 class Probability_evaluator final {
 public:

@@ -1,5 +1,6 @@
 #pragma once
 #include "Card.h"
+
 #include <array>
 #include <span>
 #include <random>

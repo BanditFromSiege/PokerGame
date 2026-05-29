@@ -178,6 +178,8 @@ void Game_stage::check_is_player_turn() noexcept {
 
         auto [min, max] = ptr_manager->get_min_max_bet_raise_for_player();
 
+        auto [_, table_current_bet] = ptr_manager->get_call_bet_for_player();
+
         player_bet = min;
 
         new_bet_label->setText(std::to_string(player_bet));
@@ -187,6 +189,7 @@ void Game_stage::check_is_player_turn() noexcept {
         bet_slider->setValue(player_bet);
 
         bet_slider->setEnabled(min < max);
+        raise_button->setEnabled(max > table_current_bet);
     }
     else {
         player_make_turn = false;

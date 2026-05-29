@@ -2,6 +2,8 @@
 #include "../Enums.h"
 #include "../../Card_Logic/Probability_evaluator.h"
 
+#include <tuple>
+
 class Player final {
 private:
 	std::string name;
@@ -10,6 +12,8 @@ private:
 
 	std::optional<double> relative_probability = std::nullopt;
 	std::optional<double> absolute_probability = std::nullopt;
+
+	std::optional<double> table_probability = std::nullopt;
 
 	double tightness = 0.0;
 	double aggression = 0.0;
@@ -28,6 +32,8 @@ private:
 	Player_difficulty difficulty = Player_difficulty::Easy;
 	Player_status status = Player_status::Active;
 	Player_type type = Player_type::TAG;
+
+	bool need_to_compute = true;
 
 	bool is_can_show_cards = false;
 	bool is_can_show_combination = false;
@@ -52,6 +58,8 @@ public:
 	std::optional<double> get_relative_probability() const noexcept;
 	std::optional<double> get_absolute_probability() const noexcept;
 
+	std::optional<double> get_table_probability() const noexcept;
+
 	std::size_t get_initial_money() const noexcept;
 
 	std::size_t get_money() const noexcept;
@@ -67,6 +75,8 @@ public:
 	Player_difficulty get_difficulty() const noexcept;
 	Player_status get_status() const noexcept;
 	Player_type get_type() const noexcept;
+
+	bool get_need_to_compute() const noexcept;
 
 	bool get_is_can_show_cards() const noexcept;
 	bool get_is_can_show_combination() const noexcept;
@@ -86,12 +96,16 @@ public:
 	void set_relative_probability(std::optional<double> probability) noexcept;
 	void set_absolute_probability(std::optional<double> probability) noexcept;
 
+	void set_table_probability(std::optional<double> probability) noexcept;
+
 	void set_current_player_bet(std::size_t bet) noexcept;
 	void set_sum_of_bets(std::size_t bet) noexcept;
 	void set_cards(Card c1, Card c2) noexcept;
 	void set_last_move(std::optional<Player_action> new_move) noexcept;
 	void set_id(std::uint8_t index) noexcept;
 	void set_status(Player_status new_status) noexcept;
+
+	void set_need_to_compute(bool f) noexcept;
 
 	void set_is_can_show_cards(bool f) noexcept;
 	void set_is_can_show_combination(bool f) noexcept;

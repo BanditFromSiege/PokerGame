@@ -55,7 +55,7 @@ void Poker_game_manager::find_absolute_probabilities_for_players() noexcept {
 	}
 }
 
-void Poker_game_manager::make_initial_bets_for_2_players(std::uint8_t& current_player_index) noexcept {
+std::uint8_t Poker_game_manager::make_blinds_for_2_players() noexcept {
 	std::uint8_t small_blind_position = dealer_id;
 	std::uint8_t big_blind_position = small_blind_id;
 
@@ -76,15 +76,20 @@ void Poker_game_manager::make_initial_bets_for_2_players(std::uint8_t& current_p
 		++count_all_in_players;
 	}
 
-	table.set_current_bet(big_blind);
+	if (bb_bet <= sb_bet) {
+		table.set_current_bet(sb_bet);
+	}
+	else {
+		table.set_current_bet(big_blind);
+	}
 
 	table.add_to_sum_of_bets_on_current_stage(sb_bet);
 	table.add_to_sum_of_bets_on_current_stage(bb_bet);
 
-	current_player_index = dealer_id;
+	return dealer_id;
 }
 
-void Poker_game_manager::make_initial_bets_for_3_players(std::uint8_t& current_player_index) noexcept {
+std::uint8_t Poker_game_manager::make_blinds_for_3_players() noexcept {
 	std::uint8_t small_blind_position = small_blind_id;
 	std::uint8_t big_blind_position = get_next_id(small_blind_position);
 
@@ -110,13 +115,13 @@ void Poker_game_manager::make_initial_bets_for_3_players(std::uint8_t& current_p
 	table.add_to_sum_of_bets_on_current_stage(sb_bet);
 	table.add_to_sum_of_bets_on_current_stage(bb_bet);
 
-	current_player_index = dealer_id;
+	return dealer_id;
 }
 
-void Poker_game_manager::make_initial_bets_for_more_then_3_players(std::uint8_t& current_player_index) noexcept {
+std::uint8_t Poker_game_manager::make_blinds_for_more_then_3_players() noexcept {
 	std::uint8_t small_blind_position = small_blind_id;
 	std::uint8_t big_blind_position = get_next_id(small_blind_position);
-	std::uint8_t new_curret_player_id = get_next_id(big_blind_position);
+	std::uint8_t new_current_player_id = get_next_id(big_blind_position);
 
 	std::size_t big_blind = table.get_current_big_blind();
 	std::size_t small_blind = table.get_current_small_blind();
@@ -140,7 +145,7 @@ void Poker_game_manager::make_initial_bets_for_more_then_3_players(std::uint8_t&
 	table.add_to_sum_of_bets_on_current_stage(sb_bet);
 	table.add_to_sum_of_bets_on_current_stage(bb_bet);
 
-	current_player_index = new_curret_player_id;
+	return new_current_player_id;
 }
 
 void Poker_game_manager::prepare_to_Preflop() noexcept {
@@ -247,6 +252,8 @@ void Poker_game_manager::prepare_to_Showdown() noexcept {
 		p.set_last_move(std::nullopt);
 		p.set_relative_probability(std::nullopt);
 
+		p.set_table_probability(std::nullopt);
+
 		p.set_is_can_show_combination(false);
 
 		if (p.is_active() || p.is_all_in()) {
@@ -264,12 +271,17 @@ void Poker_game_manager::prepare_players_to_next_stage() noexcept {
 		p.set_last_move(std::nullopt);
 		p.set_relative_probability(std::nullopt);
 
+		p.set_table_probability(std::nullopt);
+
 		if (p.is_active() || p.is_all_in()) {
 			p.set_combination(table.get_cards());
 
 			if (p.is_all_in()) {
 				p.set_is_can_show_cards(true);
 				p.set_is_can_show_combination(true);
+			}
+			else {
+				p.set_need_to_compute(true);
 			}
 
 			if (count_all_in_players >= count_active_players - 1) {
@@ -400,13 +412,13 @@ void Poker_game_manager::perform_stage() noexcept {
 		std::uint8_t current_player_id = 0;
 
 		if (count_players_in_game == 2) {
-			make_initial_bets_for_2_players(current_player_id);
+			current_player_id = make_blinds_for_2_players();
 		}
 		else if (count_players_in_game == 3) {
-			make_initial_bets_for_3_players(current_player_id);
+			current_player_id = make_blinds_for_3_players();
 		}
 		else {
-			make_initial_bets_for_more_then_3_players(current_player_id);
+			current_player_id = make_blinds_for_more_then_3_players();
 		}
 
 		rotate_players(current_player_id);
@@ -539,6 +551,12 @@ void Poker_game_manager::perform_player_step() noexcept {
 
 			if (count_active_players > 1) {
 				find_absolute_probabilities_for_players();
+
+				for (auto& player : players) {
+					if (player.get_id() != p.get_id() && player.is_active()) {
+						player.set_need_to_compute(true);
+					}
+				}
 			}
 		}
 

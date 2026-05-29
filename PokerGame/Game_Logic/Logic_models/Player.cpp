@@ -62,6 +62,10 @@ std::optional<double> Player::get_absolute_probability() const noexcept {
 	return absolute_probability;
 }
 
+std::optional<double> Player::get_table_probability() const noexcept {
+	return table_probability;
+}
+
 std::size_t Player::get_initial_money() const noexcept {
 	return initial_money;
 }
@@ -104,6 +108,10 @@ Player_status Player::get_status() const noexcept {
 
 Player_type Player::get_type() const noexcept {
 	return type;
+}
+
+bool Player::get_need_to_compute() const noexcept {
+	return need_to_compute;
 }
 
 bool Player::get_is_can_show_cards() const noexcept {
@@ -178,6 +186,10 @@ void Player::set_absolute_probability(std::optional<double> probability) noexcep
 	absolute_probability = probability;
 }
 
+void Player::set_table_probability(std::optional<double> probability) noexcept {
+	table_probability = probability;
+}
+
 void Player::set_current_player_bet(std::size_t bet) noexcept {
 	current_player_bet = bet;
 }
@@ -190,6 +202,10 @@ void Player::set_cards(Card c1, Card c2) noexcept {
 	combination = std::nullopt;
 	absolute_probability = std::nullopt;
 	relative_probability = std::nullopt;
+
+	table_probability = std::nullopt;
+
+	need_to_compute = true;
 
 	is_can_show_combination = false;
 	is_can_show_absolute_probability = false;
@@ -206,6 +222,10 @@ void Player::set_id(std::uint8_t index) noexcept {
 
 void Player::set_status(Player_status new_status) noexcept {
 	status = new_status;
+}
+
+void Player::set_need_to_compute(bool f) noexcept {
+	need_to_compute = f;
 }
 
 void Player::set_is_can_show_cards(bool f) noexcept {
@@ -249,9 +269,14 @@ void Player::reset_for_new_round() noexcept {
 	sum_of_bets = 0;
 
 	combination = std::nullopt;
+
 	absolute_probability = std::nullopt;
 	relative_probability = std::nullopt;
+	table_probability = std::nullopt;
+
 	last_move = std::nullopt;
+
+	need_to_compute = true;
 
 	is_can_show_cards = false;
 	is_can_show_combination = false;
@@ -310,21 +335,33 @@ std::pair<Player_action, std::size_t> Player::make_decision(
 
 	max_bet = std::min(max_bet, money);
 
-	auto [win_prob, table_prob] = *evaluator.get_relative_probability(
-		this->get_cards(),
-		table_cards,
-		count_of_active_players);
+	double win_prob = 0.0;
+	double table_prob = 0.0;
 
-	std::uniform_real_distribution<double> noise(
-		-0.05 * static_cast<double>(difficulty), 0.05 * static_cast<double>(difficulty)
-	);
+	if (need_to_compute) {
+		std::tie(win_prob, table_prob) = *evaluator.get_relative_probability(
+			this->get_cards(),
+			table_cards,
+			count_of_active_players);
+		
+		std::uniform_real_distribution<double> noise(
+			-0.05 * static_cast<double>(difficulty), 0.05 * static_cast<double>(difficulty)
+		);
+		
+		win_prob += noise(rng);
+		win_prob -= tightness;
+		
+		win_prob = std::clamp(win_prob, 0.0, 1.0);
+		
+		relative_probability = win_prob;
+		table_probability = table_prob;
 
-	win_prob += noise(rng);
-	win_prob -= tightness;
-
-	win_prob = std::clamp(win_prob, 0.0, 1.0);
-
-	relative_probability = win_prob;
+		need_to_compute = false;
+	}
+	else {
+		win_prob = *relative_probability;
+		table_prob = *table_probability;
+	}
 
 	const double multiway_factor
 		= static_cast<double>(count_of_active_players - 1)

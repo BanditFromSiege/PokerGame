@@ -39,7 +39,7 @@ void Poker_stability_test(
             });
         }
 
-        Poker_game_manager manager(rng, players, eval);
+        Poker_game_manager manager(rng, players, eval, Game_mode::Spectator);
 
         Logger l(manager);
 

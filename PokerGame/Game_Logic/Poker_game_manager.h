@@ -45,9 +45,9 @@ private:
 
 	void find_absolute_probabilities_for_players() noexcept;
 
-	void make_initial_bets_for_2_players(std::uint8_t& current_player_index) noexcept;
-	void make_initial_bets_for_3_players(std::uint8_t& current_player_index) noexcept;
-	void make_initial_bets_for_more_then_3_players(std::uint8_t& current_player_index) noexcept;
+	std::uint8_t make_blinds_for_2_players() noexcept;
+	std::uint8_t make_blinds_for_3_players() noexcept;
+	std::uint8_t make_blinds_for_more_then_3_players() noexcept;
 
 	void prepare_to_Preflop() noexcept;
 	void prepare_to_Flop() noexcept;

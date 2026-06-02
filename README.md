@@ -4,7 +4,10 @@ A desktop Texas Hold'em poker game simulator developed in C++23 using SFML and T
 
 The application supports both human-vs-bot gameplay and fully automated bot-vs-bot simulations. The project was developed as a diploma thesis and demonstrates the implementation of poker game logic, poker combination evaluation algorithms, AI-controlled players, and a graphical user interface, including Monte Carlo-based probability estimation with single-threaded and multi-threaded execution modes.
 
----
+## Download
+
+Download the latest release here:  
+https://github.com/BanditFromSiege/PokerGame/releases/latest
 
 ## Features
 
@@ -19,9 +22,8 @@ The application supports both human-vs-bot gameplay and fully automated bot-vs-b
 * Rendering powered by SFML
 * Player action logging (in-game console and file output)
 * UI theme customization with 4 background color options (red, green, blue, purple)
+* Designed for 1920x1080 (Full HD) resolution
 * Modern C++23 codebase
-
----
 
 ## Technologies
 
@@ -30,8 +32,6 @@ The application supports both human-vs-bot gameplay and fully automated bot-vs-b
 * TGUI 1.11
 * Microsoft Visual Studio 2022
 * MSVC Compiler
-
----
 
 ## Screenshots
 
@@ -59,8 +59,6 @@ The application supports both human-vs-bot gameplay and fully automated bot-vs-b
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/62ab3a25-cd12-4db5-a2b4-be868d87a522" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/ac42cf54-4c0f-4d33-9b0d-7ede4604c7a5" />
 
----
-
 ## Project Structure
 
 ```text
@@ -83,6 +81,7 @@ PokerGame/
 ## Build Requirements
 
 * Windows 10 / Windows 11
+* 1920x1080 resolution (Full HD) display required
 * Microsoft Visual Studio 2022
 * MSVC with C++23 support
 

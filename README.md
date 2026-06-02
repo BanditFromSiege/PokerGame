@@ -106,7 +106,35 @@ git clone https://github.com/BanditFromSiege/PokerGame.git
 Ctrl + Shift + B
 ```
 
-5. Run the project:
+5. After building, copy the following DLL files into the output directory (where `PokerGame.exe` is located).
+
+Release build:
+
+From PokerGame/SFML-3.0.0/dll_files
+- sfml-graphics-3.dll
+- sfml-window-3.dll
+- sfml-system-3.dll
+
+From PokerGame/TGUI-1.11/dll_files
+- tgui.dll
+
+From PokerGame
+- Images folder
+
+Debug build:
+
+From PokerGame/SFML-3.0.0/dll_files
+- sfml-graphics-d-3.dll
+- sfml-window-d-3.dll
+- sfml-system-d-3.dll
+
+From PokerGame/TGUI-1.11/dll_files
+- tgui-d.dll
+
+From PokerGame
+- Images folder
+
+6. Run the project:
 
 ```text
 F5

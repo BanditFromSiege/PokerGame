@@ -59,8 +59,6 @@ private:
 
 	sf::Clock clock;
 
-	Probability_evaluator eval;
-
 	const float default_delay = 1.0f;
 	float delay = default_delay;
 

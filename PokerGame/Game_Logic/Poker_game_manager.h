@@ -69,7 +69,6 @@ public:
 	Poker_game_manager(
 		std::mt19937_64& rng,
 		std::vector<Player>& players,
-		Probability_evaluator& eval,
 		Game_mode mode
 	) noexcept;
 

@@ -700,12 +700,10 @@ bool Poker_game_manager::reset_for_next_round() noexcept {
 Poker_game_manager::Poker_game_manager(
 	std::mt19937_64& rng,
 	std::vector<Player>& players,
-	Probability_evaluator& eval,
 	Game_mode mode
 ) noexcept
 	: rng(rng)
 	, players(players)
-	, evaluator(eval)
 	, game_mode(mode)
 {	
 	deck = *Poker_deck::create_poker_deck();

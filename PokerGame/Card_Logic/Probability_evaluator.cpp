@@ -312,9 +312,11 @@ void Probability_evaluator::generate_and_show_preflop_table(std::uint8_t number_
 
 	std::sort(preflop_cards.begin(), preflop_cards.end());
 
+	std::size_t i = 1;
+
 	for (auto [probability, tuple] : preflop_cards) {
 		auto [rank_card1, rank_card2, suited] = tuple;
-		std::cout << static_cast<int>(number_of_players) << " players"
+		std::cout << i++ << ":\t" << static_cast<int>(number_of_players) << " players"
 			<< '\t' << static_cast<Card_value>(rank_card1) << static_cast<Card_value>(rank_card2)
 			<< '\t' << (suited ? "suited\t" : "outsuited")
 			<< '\t' << probability << '\n';

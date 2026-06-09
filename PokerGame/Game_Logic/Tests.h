@@ -12,8 +12,6 @@ void Poker_stability_test(
 ) {
     std::mt19937_64 rng{ std::random_device{}() };
 
-    Probability_evaluator eval;
-
     number_of_players = std::clamp(
         number_of_players,
         Probability_evaluator::MIN_PLAYERS,
@@ -39,7 +37,7 @@ void Poker_stability_test(
             });
         }
 
-        Poker_game_manager manager(rng, players, eval, Game_mode::Spectator);
+        Poker_game_manager manager(rng, players, Game_mode::Spectator);
 
         Logger l(manager);
 
